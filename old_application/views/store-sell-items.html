@@ -1,0 +1,50 @@
+{# Copyright (C) 2012 Down Range Games, Inc #}
+{# 1084 Paloma Rd., Monterey, CA 93940 #}
+{% extends "base.html" %}
+{% block content %}
+
+{% if items %}
+<h2 class="page">Items</h2>
+{% for item in items %}
+<div class="pad" style="float:left;">
+
+    <img src="{{MEDIA_URL}}/items/{{item.id}}s.png" alt="" />
+    <div>
+        <h3>{{item.item.name}}</h3>
+        <p>{{item.item.description}}</p>
+        <p>Value: {{item.item.value}}</p>
+    </div>
+    <form action="{{SITE_URL}}/sell-item" method="post">
+        <div>
+            {% csrf_token %}
+            <input type="hidden" name="id" value="{{item.id}}" />
+            <input type="submit" class="button" value="Sell" />
+        </div>
+    </form>
+</div>
+{% endfor %}
+<div class="clear"></div>
+{% endif %}
+
+{% if things %}
+<h2>Things</h2>
+{% for thing in things %}
+<div class="pad">
+    <img src="{{MEDIA_URL}}/things/{{thing.id}}s.png" alt="" />
+    <div>
+        <h3>{{thing.thing.name}}</h3>
+        <p>{{thing.thing.description}}</p>
+        <p>Value: {{thing.thing.value}}</p>
+    </div>
+    <form action="{{SITE_URL}}/sell-thing" method="post">
+        <div>
+            {% csrf_token %}
+            <input type="hidden" name="id" value="{{thing.id}}" />
+            <input type="submit" class="button" value="Sell" />
+        </div>
+    </form>
+</div>
+{% endfor %}
+<div class="clear"></div>
+{% endif %}
+{% endblock %}

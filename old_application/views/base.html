@@ -1,0 +1,438 @@
+{# Copyright (C) 2012 Down Range Games, Inc #}
+{# 1084 Paloma Rd., Monterey, CA 93940 #}
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta content="text/html; charset=utf-8" http-equiv="Content-type" />
+        <script type="text/javascript" src="{{SITE_URL}}/@@/jquery-1.9.1.min.js"></script>
+        <link rel="stylesheet" type="text/css" href="{{SITE_URL}}/styles.css" media="screen" />
+        <title>{% block title %}{% endblock %}</title>
+        <script type="text/javascript" src="{{SITE_URL}}/@@/functions.js"></script>
+        <script type="text/javascript">
+        function init_data() {
+        health = {{request.player.health}};
+                energy = {{request.player.energy}};
+                stamina = {{request.player.stamina}};
+                experience = {{request.player.experience}};
+                health_limit = {{request.player.health_limit}};
+                energy_limit = {{request.player.energy_limit}};
+                stamina_limit = {{request.player.stamina_limit}};
+                experience_limit = {{request.player.next_level_xp}}
+        experience_AtLevel = {{request.player.current_level_xp}};
+                health_rate = {{request.player.health_rate}};
+                energy_rate = {{request.player.energy_rate}};
+                stamina_rate = {{request.player.stamina_rate}};
+                health_refill = {{request.player.health_refill_stamp}};
+                energy_refill = {{request.player.energy_refill_stamp}};
+                stamina_refill = {{request.player.stamina_refill_stamp}};
+                now = {{request.player.now}};
+                d = new Date();
+                local_offset = d.getTime() / 1000 - now;
+        { % if combatant % }
+        combatant_Current = {{combatant.health}};
+                combatant_Max = {{combatant.combatant.health}};
+        { % else % }
+        combatant_Max = 0;
+                combatant_Current = 0;
+        { % endif % }
+        }
+        </script>
+    </head>
+
+    <body onload="init()">
+        <div id="container">
+            <div id="content">
+                {% block content %}{% endblock %}
+                <div class="clear"></div>
+            </div>
+
+            <div id="account-menu">
+                <div style="float:left;vertical-align:middle;">
+                    <a href="{{SITE_URL}}/"><img src="{{SITE_URL}}/@@/link-home.png" alt="Home" title="Main page" style="float:left;" /></a>
+                    {% if request.account.id %}
+                    <a href="{{SITE_URL}}/account"><img src="{{SITE_URL}}/@@/link-settings.png" alt="Settings" title="Account settings" style="float:left;margin-left:5px;" /></a>
+                    {% endif %}
+                </div>
+                <div style="float:right;">
+                    {% if not request.account.id %}
+                    <a style="color:orange;" href="{{SITE_URL}}/login">Log In</a>
+                    {% else %}
+                    <strong>{{request.player.rank.label}}</strong>
+                    <strong><a href="{{SITE_URL}}/player">{{request.player}}</a></strong> |
+                    <a style="color:orange;" href="{{SITE_URL}}/logout">Logout</a>
+                    {% endif %}
+                </div>
+                {% if request.account.id %}
+                <img style="float:right;padding-right:5px" src="{{SITE_URL}}/@@/rank.png" height="20" width="20" alt="rank">
+                {% endif %}
+                <div class="clear"></div>
+            </div>
+
+            <div id="stats">
+                {% if request.account.id %}
+                <table class="statsTable">
+                    <tr>
+                        <td>
+                            <div class="statIconCoins"></div>
+                            <div class="coinsContainer statContainer">
+                                <div class="statFormat">
+                                    <div class="statCount">${{request.player.balance}}</div>
+                                    <div class="clear"></div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="addBtn"><a href=""><img src="{{SITE_URL}}/@@/icoAdd.png" width="18" height="18" alt="Add"></a></div>
+                            <div class="statIconChallengeCoins"></div>
+                            <div class="challengeCoinsContainer statContainer">
+                                <div class="statFormat">
+                                    <div class="statCount">{{request.player.premium_balance}}</div>	
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div id="energyInfo">
+                                <div class="upArrowTooltip resourcePos">
+                                    <p>Energy Full in: </p> 
+                                    <span id="energy-timerMax" class="statText"></span>
+                                </div>
+                            </div>	
+                            <div class="barContainer">
+                                <span class="statText">/{{request.player.energy_limit}}</span>
+                                <span id="player-energy" class="statTextCurrent">{{request.player.energy}}</span>
+                                <span id="energy-timer" class="statTimer"></span>
+                                <div id="playerEnergy" class="EnergyBar"></div>
+                            </div>
+                            <div class="statIconEnergy"></div>
+                            <div class="statContainer">
+                                <div class="statFormat">
+                                    <div class="statBarTitle">
+                                        ENERGY
+                                    </div>
+                                    <div style="position: absolute;margin-left: 110px;">
+
+                                    </div>
+                                    <div class="clear"></div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div id="staminaInfo">
+                                <div class="upArrowTooltip resourcePos">
+                                    <p>Stamina Full in: </p> 
+                                    <span id="stamina-timerMax" class="statText"></span>
+                                </div>
+                            </div>	
+                            <div class="barContainer">
+                                <span class="statText">/{{request.player.stamina_limit}}</span>
+                                <span id="player-stamina" class="statTextCurrent">{{request.player.stamina}}</span>
+                                <span id="stamina-timer" class="statTimer"></span>
+                                <div id="playerStamina" class="StaminaBar"></div>
+                            </div>
+                            <div class="statIconStamina"></div>
+                            <div class="statContainer">
+                                <div class="statFormat">
+                                    <div class="statBarTitle">
+                                        STAMINA
+                                    </div>
+                                    <div class="clear"></div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div class="statBoosts">
+                                <ul>
+                                    <li></li>
+                                    <li></li>
+                                    <li></li>
+                                    <li></li>
+                                </ul>
+                                <a href=""><img class="addBtnBoosts" src="{{SITE_URL}}/@@/icoAdd.png" width="18" height="18" alt="Add"></a>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="addBtn"><a href=""><img src="{{SITE_URL}}/@@/icoAdd.png" width="18" height="18" alt="Add"></a></div>
+                            <div class="statIconRank"></div>
+                            <div class="rankContainer statContainer">
+                                <div class="statFormat">
+                                    <div class="statCount">0</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td >
+                            <div id="healthInfo">
+                                <div class="upArrowTooltip resourcePos">
+                                    <p>Health Full in: </p>
+                                    <span id="health-timerMax" class="statText"></span>
+                                </div>
+                            </div>				
+                            <div class="barContainer">	
+                                <span class="statText">/{{request.player.health_limit}}</span>
+                                <span id="player-health" class="statTextCurrent">{{request.player.health}}</span>
+                                <span id="health-timer" class="statTimer"></span>
+                                <div id="playerHealth" class="HealthBar"></div>
+                            </div>
+                            <div class="statIconHealth"></div>
+                            <div class="statContainer">
+                                <div class="statFormat">
+                                    <div class="statBarTitle">HEALTH</div>
+                                    <div class="clear"></div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div id="levelInfo">
+                                <div class="upArrowTooltip resourcePos">
+                                    <p>Experience:</p>
+                                    <span id="player-MaxExp" class="statText"></span>
+                                    <span id="player-level" class="statTextCurrent"></span>
+                                </div>
+                            </div>
+                            <div class="barContainer">
+                                <span id="exp" class="statText"></span>
+                                <!--
+                                <span class="statText">/{{request.player.next_level_xp}}</span>
+                                <span id="player-level" class="statTextCurrent">{{request.player.experience}}</span>
+                                -->
+                                <div id="playerLevel" class="LevelBar"></div>
+                            </div>
+                            <div class="statIconLevel"></div>
+                            <div class="statContainer">
+                                <div class="statFormat">
+                                    <div class="statBarTitle">LEVEL {{request.player.level}}</div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+                <div class="friendsBarSection">
+                    <div class="friendsBarTitle">FRIENDS:</div>
+                    <div class="friendsBarContainer"></div>
+                </div>
+                {% endif %}
+            </div>
+
+            <!--<div id="intro" style="display:none;">
+                    <div class="introNext">
+                            <p>Next</p>
+                    </div>
+                    <div id="introStart" class="introSection">
+                            <div id="popIntroGear" class="popUp">
+                                    <p>You receive:</p>
+                                    <div class="left">
+                                            <img src="{{MEDIA_URL}}/items/36.png" height="70" alt="">
+                                            <p>Tattered Jeans</p>
+                                    </div>
+                                    <div class="right">
+                                            <img src="{{MEDIA_URL}}/items/57.png" height="70" alt="">
+                                            <p>Dirty Shirt</p>
+                                    </div>
+                                    
+                                    <div class="introEquipGear blue confirm">
+                                            <p>Equip</p>
+                                    </div>
+                            </div>
+                            <img class="introImageBig" src="{{SITE_URL}}/@@/Introduction/001EstablishingShotPreview.jpg" alt="">
+                            <div class="introInfo">
+                                    <p>You sit silently against the wall, hoping that you go unnoticed for at least a short time. The
+                                    beatings are terrible and you get little to no sleep. It has been almost three months now... or was
+                                    it four. Time really plays tricks on you when you can’t see natural light. The only indication has
+                                    been the changing of the guard shifts and the different smells coming from the other room. Is
+                                    this how your life is going to end? Some tattered piece of flesh in a dark room in the desert?
+                                    Surely, there must be some other way...</p>
+                            </div>
+                            <div class="introAction blue">
+                                    <p>Find a Way!</p>
+                            </div>
+                    </div>
+                    <div class="introSection">
+                            <div id="popIntroWeapon" class="popUp">
+                                    <p>You receive:</p>
+                                    <div class="center">
+                                            <img src="{{MEDIA_URL}}/items/68.png" height="70" alt="">
+                                            <p>Glass Shard</p>
+                                    </div>
+                                    
+                                    <div class="introEquipWep blue confirm">
+                                            <p>Equip</p>
+                                    </div>
+                            </div>
+                            <img class="introCenterImage" src="{{SITE_URL}}/@@/Introduction/002CuttingTheRopePreview.jpg" alt="">
+                            <div class="introInfo">
+                                    <p>“You pull and strain against your bonds.  No results.  But wait... You feel a small shard of glass 
+                                    on the ground behind you, within reach.</p>				
+                            </div>
+                            <div class="introAction blue">
+                                    <p>Take Glass</p>
+                            </div>
+                    </div>
+                    <div class="introSection">
+                            <div id="popIntroSquad" class="popUp">
+                                    <p>Hostages have joined your squad:</p>
+                                    <div class="left">
+                                            <img src="{{SITE_URL}}/@@/squad/Portraits001MainPreview.jpg" height="100" alt="">
+                                            <p>Member 1</p>
+                                    </div>
+                                    <div class="right">
+                                            <img src="{{SITE_URL}}/@@/squad/Portraits002SoldierTwoPreview.jpg" height="100" alt="">
+                                            <p>Member 2</p>
+                                    </div>
+                                    <div class="introEquipSquad blue confirm">
+                                            <p>Add to Squad</p>
+                                    </div>
+                            </div>
+                            <img class="introImageBig" src="{{SITE_URL}}/@@/Introduction/003SurveyingPreview.jpg" alt="">
+                            <div class="introInfo">
+                                    <p>Once freed, you quickly but quietly set about freeing the hostages.  You cover their mouths to keep 
+                                    them from making a sound and remove their shrouds and bonds.  You find that two of them are in good shape, 
+                                    though beaten, and one is fair but bleeding.  The soldier you saw laying down is unfortunately no longer 
+                                    alive, so you grab his dog tags and vow vengeance.</p>
+                            </div>
+                            <div class="introAction blue">
+                                    <p>Free Hostages</p>
+                            </div>
+                    </div>
+                    <div class="introSection">
+                            <img class="introImageBig" src="{{SITE_URL}}/@@/Introduction/004GearingUpPreview.jpg" alt="">
+                            
+                            <div class="explorePosition">
+                                    <div class="introProgressBar">
+                                            <div class="introProgress" style="width:0%;"></div>
+                                            <div class="exploreProgressText"><strong>Explore the Room</strong> - 0% explored</div>
+                                    </div>
+                                    
+                                    <div id="exploreBar">
+                                            {% if request.player.energy >= request.player.location.place.energy and not combatant and not boss and not event and not trader %}
+                                            <form id="explore" action="{{SITE_URL}}/explore-place" method="post">
+                                                    {% csrf_token %}
+                                                    <input type="hidden" name="id" value="{{request.player.location.id}}" />
+                                                    <input type="submit" id="exploreBtn" class="exploreButton blue" value="Explore" />
+                                            </form>
+                                            {% endif %}
+                                    </div>
+                            </div>
+                            
+                            <div class="introInfo">
+                                    <p>You sit silently against the wall, hoping that you go unnoticed for at least a short time. The
+beatings are terrible and you get little to no sleep. It has been almost three months now... or was
+it four. Time really plays tricks on you when you can’t see natural light. The only indication has
+been the changing of the guard shifts and the different smells coming from the other room. Is
+this how your life is going to end? Some tattered piece of flesh in a dark room in the desert?
+Surely, there must be some other way...</p>
+                            </div>
+                            <div class="introAction blue">
+                                    <p>Search</p>
+                            </div>
+                    </div>
+                    <div class="introSection">
+                            <img class="introCenterImage" src="{{SITE_URL}}/@@/Introduction/005SneakAttackPreview.jpg" alt="">
+                            <div class="introInfo">
+                                    <p>You sit silently against the wall, hoping that you go unnoticed for at least a short time. The
+beatings are terrible and you get little to no sleep. It has been almost three months now... or was
+it four. Time really plays tricks on you when you can’t see natural light. The only indication has
+been the changing of the guard shifts and the different smells coming from the other room. Is
+this how your life is going to end? Some tattered piece of flesh in a dark room in the desert?
+Surely, there must be some other way...</p>
+                            </div>
+                    </div>
+                    <div class="introSection">
+                            <img class="introImageBig" src="{{SITE_URL}}/@@/Introduction/006Soldier4Shot.jpg" alt="">
+                            <div class="introInfo">
+                                    <p>You sit silently against the wall, hoping that you go unnoticed for at least a short time. The
+beatings are terrible and you get little to no sleep. It has been almost three months now... or was
+it four. Time really plays tricks on you when you can’t see natural light. The only indication has
+been the changing of the guard shifts and the different smells coming from the other room. Is
+this how your life is going to end? Some tattered piece of flesh in a dark room in the desert?
+Surely, there must be some other way...</p>
+                            </div>
+                    </div>
+                    <div class="introSection">
+                            <img class="introImageBig" src="{{SITE_URL}}/@@/Introduction/007EscapePreview.jpg" alt="">
+                            <div class="introInfo">
+                                    <p>You sit silently against the wall, hoping that you go unnoticed for at least a short time. The
+beatings are terrible and you get little to no sleep. It has been almost three months now... or was
+it four. Time really plays tricks on you when you can’t see natural light. The only indication has
+been the changing of the guard shifts and the different smells coming from the other room. Is
+this how your life is going to end? Some tattered piece of flesh in a dark room in the desert?
+Surely, there must be some other way...</p>
+                            </div>
+                    </div>
+            </div>-->
+
+            <div id="main-menu">
+                <div id="logo">
+                    <a href="{{SITE_URL}}/"><img src="{{SITE_URL}}/@@/coinimpactLogo.png" alt="logo" width="220" /></a>
+                </div>
+
+                <div style="margin-right:10px">
+                    <ul>
+                        {% if request.account.id %}
+                        {% if request.player.location.place.name == 'Base Camp'%}
+                        <li><a href="{{SITE_URL}}/base">BASE</a></li>
+                        {% else %}
+                        <li><a href="javascript:void(0)" onclick="javascript:toggle('popBase')">BASE</a></li>
+                        {% endif %}
+                        <li><a href="{{SITE_URL}}/map">MAP</a></li>
+                        <li><a href="{{SITE_URL}}/explore">EXPLORE</a></li>
+                        <li><a href="{{SITE_URL}}/bosses">BOSSES</a></li>
+                        <li><a href="{{SITE_URL}}/profile">PROFILE</a></li>
+                        <li><a href="{{SITE_URL}}/team">TEAM</a></li>
+                        <!--
+                        <li><a href="{{SITE_URL}}/gift">GIFT</a></li>
+                        -->
+                        <li><a href="{{SITE_URL}}/missions">MISSIONS</a></li>
+                        <li><a href="{{SITE_URL}}/store">STORE</a></li>
+                        {% endif %}
+                    </ul>
+                    <div id="popBase" class="popUp">
+                        <div class="closeBtn closeBasePos" onclick="javascript:toggle('popBase')">
+                        </div>
+                        {% for place in player_places %}
+                        {% if place.place.name == "Base Camp" %}
+                        {% if not place = request.player.location and request.player.energy >= place.required_energy %}
+                        <p>You are not at {{place.place.name}}, would you like to travel there for {{place.required_energy}} energy.</p>
+                        <form action="{{SITE_URL}}/select-place" method="post">
+                            {% csrf_token %}
+                            <input type="hidden" name="id" value="{{place.id}}">
+                            <input type="submit" class="left blue" value="Yes">
+                            <input type="button" class="right red" value="No" onclick="javascript:toggle('popBase')">
+                        </form>
+                        {% endif %}
+                        {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="clear"></div>
+            </div>
+
+            <div id="submenu">
+                <ul>
+                    {% if request.account.id %}
+                    <li><a href="{{SITE_URL}}/players">players</a></li>
+                    <li><a href="{{SITE_URL}}/items">items</a></li>
+                    {% endif %}
+                    {% if request.account.is_staff %}
+                    <li><a href="{{SITE_URL}}/import">import</a></li>
+                    {% endif %}
+                </ul>
+            </div>
+
+            <div id="footer">
+                <div style="text-align:center;">
+                    &copy; Copyright 2013, COIN IMPACT, by 
+                    <a href="http://downrangegames.com">Down Range Games</a>
+                    . All Rights Reserved.
+                </div>
+                <div id="w3c">
+                    <a href="http://validator.w3.org/check?uri={{request.build_absolute_uri|urlencode}}%3Fsession_key={{request.session_key}}&amp;ss=1"
+                       title="valid html5">xhtml</a>
+                    <a href="http://jigsaw.w3.org/css-validator/check/referer?profile=css3"
+                       title="valid css">css</a>
+                </div>
+                <div class="clear"></div>
+            </div>
+        </div>
+    </body>
+</html>

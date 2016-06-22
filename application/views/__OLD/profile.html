@@ -1,0 +1,636 @@
+{# Copyright (C) 2012 Down Range Games, Inc #}
+{# 1084 Paloma Rd., Monterey, CA 93940 #}
+{% extends "base.html" %}
+{% block content %}
+
+
+<div class="box2">
+    {% if player %}
+    <img class="titleAddBtn" src="{{SITE_URL}}/@@/icoAdd.png" width="18" height="18" alt="Add"/>
+    <h1 class="addButtonBarLight">{{player}}</h1>
+    {% else %}
+    <img class="titleAddBtn" src="{{SITE_URL}}/@@/icoAdd.png" onclick="javascript:toggle('playerStats');" width="18" height="18" alt="Add"/>
+    <h1 class="addButtonBarLight"><strong>PLAYER:</strong>{{request.player}}</h1>
+    {% endif %}
+
+    <div id="playerStats">
+        <div class="bulletBg">
+            <div class="squadPaper">
+                <h2 class="page">Squad Activity</h2>
+                <!--
+                <div>
+                        Blain reached the rank of Colonel. 15 mins ago.
+                        <input class="blueBtnS" type="submit" name="submit" value="Send gift">
+                </div>
+                -->
+            </div>
+
+            <div class="inventoryBox">
+                <img class="profileBorder" src="{{SITE_URL}}/@@/side_profile_left.jpg" alt="">
+
+                <div class="profileFrame">						
+                    <img class="profileRank" src="{{SITE_URL}}/@@/rank.png" height="20" width="20" alt="rank">
+                    <img src="{{SITE_URL}}/@@/male.jpg" height="150" width="130" alt="profile image">
+
+                </div>
+                <img class="profileBorder" src="{{SITE_URL}}/@@/side_profile_right.jpg" alt="">
+
+
+                <div style="width:380px;margin-bottom:10px;">
+                    {% for slot in slots %}
+                    <div class="small-pad">
+                        <span class="smallTitle">{{slot.name}}</span>
+                        {% for item in items %}
+                        {% if item.slot.id == slot.id %}
+
+                        {% if item.item.weight == 2 %}
+                        <img class="opacity" src="{{MEDIA_URL}}/items/{{item.item.id}}{% if item.item.has_quality %}-{{item.quality}}{% endif %}s.png" alt="{{item.item.name}}" title="{{item.item.name}} ({{item.durability}}%)"  height="46" width="85"/>
+                        {% endif %}
+
+                        <img src="{{MEDIA_URL}}/items/{{item.item.id}}{% if item.item.has_quality %}-{{item.quality}}{% endif %}s.png" alt="{{item.item.name}}" title="{{item.item.name}} ({{item.durability}}%)"  height="46" width="85"/>
+
+
+                        <div class="equipStats">
+                            <table class="info">
+                                {% if item.item.attack %}
+                                <tr>
+                                    <th>ATK</th>
+                                    <td>{{item.item.attack}}</td>
+                                </tr>
+                                {% endif %}
+
+                                {% if item.item.defense %}
+                                <tr>
+                                    <th>DEF</th>
+                                    <td>{{item.item.defense}}</td>
+                                </tr>
+                                {% endif %}
+
+                                {% if item.item.energy %}
+                                <tr>
+                                    <th>EN</th>
+                                    <td>{{item.item.energy}}</td>
+                                </tr>
+                                {% endif %}
+
+                                {% if item.item.stamina %}
+                                <tr>	
+                                    <th>STA</th>
+                                    <td>{{item.item.stamina}}</td>
+                                </tr>
+                                {% endif %}	
+
+                                {% if item.item.health %}
+                                <tr>
+                                    <th>HP</th>
+                                    <td>{{item.item.health}}</td>
+                                </tr>
+                                {% endif %}
+
+                                {% if item.item.strike %}
+                                <tr>
+                                    <th>CS</th>
+                                    <td>{{item.item.strike}}%</td>
+                                </tr>
+                                {% endif %}
+
+                                {% if item.item.dodge %}
+                                <tr>
+                                    <th>Dodge</th>
+                                    <td>{{item.item.dodge}}%</td>
+                                </tr>
+                                {% endif %}
+
+                                {% if item.item.luck %}
+                                <tr>
+                                    <th>Luck</th>
+                                    <td>{{item.item.luck}}%</td>
+                                </tr>
+                                {% endif %}
+
+                                {% if item.item.capacity %}
+                                <tr>
+                                    <th>Capacity</th>
+                                    <td>{{item.item.capacity}}</td>
+                                </tr>
+                                {% endif %}
+
+                                {% if item.item.has_quality %}
+                                <tr>
+                                    <th>Quality</th>
+                                    <td>{{item.quality}}</td>	
+                                </tr>
+                                {% endif %}
+                            </table>
+
+                            <form action="{{SITE_URL}}/disable-item" method="post">
+                                {% csrf_token %}
+                                <div>
+                                    <input type="hidden" name="id" value="{{item.id}}" />
+                                    <input class="button red" type="submit" value="Un-Equip" >
+                                </div>
+                            </form>
+                        </div>
+
+                        {% endif %}
+                        {% endfor %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="squadInfo">
+                <h2 class="page">Squad</h2>
+                <h1 style="text-align: center;" class="squadName">Squad Name</h1>
+                <div class="squadAtk">
+                    <b>Squad Attack:</b>
+                    <div class="squadStatNumbers">
+                        0
+                    </div>
+                </div>
+                <div class="squadDef">
+                    <b>Squad Defense:</b>
+                    <div class="squadStatNumbers">
+                        0
+                    </div>
+                </div>
+                {% if friends %}
+                <ul style="list-style-type:none;margin:0;padding:0;">
+                    <li style="margin:0;"><a href="{{SITE_URL}}/profile">{{request.player}}</a></li>
+                    {% for friend in friends %}
+                    <li><a href="{{SITE_URL}}/profile/{{friend.friend.id}}">{{friend.friend}}</a></li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+                {% if player %}
+                <form action="{{SITE_URL}}/remove-friend" method="post">
+                    {% csrf_token %}
+                    <div>
+                        <input type="hidden" name="id" value="{{player.id}}" />
+                        <input class="button" type="submit" value="Remove from team" />
+                    </div>
+                </form>
+                {% endif %}
+                <div class="squadBoost">
+                    <b>squad bonuses:</b>
+                    <ul>
+                        <li></li>
+                        <li></li>
+                        <li></li>
+                        <li></li>
+                    </ul>
+                </div>
+                <input class="redBtnL squadButton red" onclick="window.location ='{{SITE_URL}}/players'" type="submit" name="submit" value="EDIT SQUAD">
+                <input class="blueBtnL squadButton blue" onclick="window.location ='{{SITE_URL}}/players'" type="submit" name="submit" value="RECRUIT FRIENDS">
+            </div>
+
+            <div style="position: absolute;margin-top: 335px; width: 155px">
+                <div class="large-pad">
+                    <span class="largeTitle">Vehicle</span>
+                    <div class="emptyBlock">
+
+                    </div>
+
+                    <div class="itemStatsBg" style="height: 51px">	
+                        <div class="itemStats">
+                            <img src="{{SITE_URL}}/@@/attack.png" height="32" width="32" style="padding-left: 12px;" alt="">
+                            0
+                        </div>
+                        <div class="itemStats">
+                            <img src="{{SITE_URL}}/@@/defense.png" height="32" width="32" style="padding-left: 12px;" alt="">
+                            0
+                        </div>
+                        <div class="itemStats">
+                            <img src="{{SITE_URL}}/@@/statContainerEnergy.png" height="32" width="28" style="padding-left: 12px;" alt="">
+                            0
+                        </div>
+                    </div>
+                </div>
+                <div style="float:left">			
+                    <div class="barContainerItem">	
+                        <span class="statTextItem">/0</span>
+                        <span class="statTextItemCurrent">0</span>
+                        <div id="vehicleIntegrity" class="HealthBar"></div>
+                    </div>
+                    <div class="statContainerItem">
+                        <div class="statFormatItem">
+                            <div class="statBarTitle">INTEGRITY</div>
+                            <div class="clear"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="float:right;width: 155px;">
+                <div class="large-pad">
+                    <span class="largeTitle">Companion</span>
+                    <div class="emptyBlock">
+
+                    </div>
+                </div>
+                <div style="float:left">
+                    <div class="barContainerItem">	
+                        <span class="statTextItem">/0</span>
+                        <span class="statTextItemCurrent">0</span>
+                        <div id="petHealth" class="HealthBar"></div>
+                    </div>
+                    <div class="statContainerItem">
+                        <div class="statFormatItem">
+                            <div class="statBarTitle">Health</div>
+                            <div class="clear"></div>
+                        </div>
+                    </div>	
+                </div>
+
+                <div style="float:left">
+                    <div class="barContainerItem">	
+                        <span class="statTextItem">/0</span>
+                        <span class="statTextItemCurrent">0</span>
+                        <div id="petExperience" class="LevelBar"></div>
+                    </div>
+                    <div class="statContainerItem">
+                        <div class="statFormatItem">
+                            <div class="statBarTitle">Level 0</div>
+                            <div class="clear"></div>
+                        </div>
+                    </div>	
+                </div>
+                <input class="treat blue" type="submit" name="submit" value="Give a treat">
+            </div>
+
+            <div class="buyBox" style="width: 180px; margin: 14px 10px 0px 10px;">
+                <div style="width: 90px;float: left;margin: 3px 0px;color: #333;">
+                    Featured Weapon: Bayonet, Quality 5
+                </div>
+                <img src="{{SITE_URL}}/@@/chesty_pullers_ka_bar.jpg" style="float:right" height="45" width="80" alt="item">
+                <div style="width:22px; float:left; border-right: 1px solid #333">
+                    Buy
+                </div>
+                <div style="width:60px;float:left;padding-left: 5px;">
+                    Learn more
+                </div>
+            </div>
+            <input style="float:right; margin-top: 5px;" class="buyItemBtn" type="submit" name="submit" value="Buy More">
+            <input style="float:right; margin-top: 5px;" class="buyCoinBtn" type="submit" name="submit" value="Buy More">
+            <div style="width:60px;float:right; padding-top:13px;">
+                <h2 class="brownFont">store:</h2>
+                <img style="margin: 0px auto;" src="/coinimpact/@@/icoAdd.png" width="18" height="18" alt="Add">
+            </div>
+        </div>
+    </div>
+    <!--
+    {% for modifier in modifiers %}
+            {% if modifier.item %}
+                    <div class="small-pad" style="height:100px;">
+                            <span class="title">{{modifier.modifier.name}}</span>
+                            <div>
+                                    <img src="{{MEDIA_URL}}/modifiers/{{modifier.modifier.id}}{% if modifier.modifier.has_quality %}-{{modifier.quality}}{% endif %}s.png" alt="{{modifier.modifier.name}}" title="{{modifier.modifier.name}}" />
+                                    <form action="{{SITE_URL}}/disable-modifier" method="post">
+                                            {% csrf_token %}
+                                            <div>
+                                                    <input type="hidden" name="id" value="{{modifier.id}}" />
+                                                    <input type="submit" class="cancel-button" value="Disable" />
+                                            </div>
+                                    </form>
+                            </div>
+                    </div>
+            {% endif %}
+            <div class="clear"></div>
+    {% endfor %}
+    -->
+    <img class="titleAddBtn" src="{{SITE_URL}}/@@/icoAdd.png" onclick="javascript:toggle('statusTotals');" width="18" height="18" alt="Add"/>
+    <h2 class="addButtonBar">Stats</h2>
+    <div class="statDogTagBg" id="statusTotals">
+        <div>
+            <table class="list">
+                <tr>
+                    <th></th>
+                    <td class="statTitle" style="width: 35px;">Attack</td>
+                    <td class="statTitle" style="width: 48px;">Defense</td>
+                    <td class="statTitle">Stamina</td>
+                    <td class="statTitle" style="width: 50px;">Energy</td>
+                    <td class="statTitle" style="width: 35px;">Health</td>
+                    <td class="statTitle" style="width: 55px;">Crit'<br>Strike</td>
+                    <td class="statTitle" style="width: 35px;">Crit'<br>Boost</td>
+                    <td class="statTitle" style="width: 50px;">Damage<br>Boost</td>
+                    <td class="statTitle" style="width: 35px;">Dodge</td>
+                    <td class="statTitle" style="width: 40px;">Luck</td>	
+                </tr>
+                <tr>
+                    <th>Base:</th>
+                    <td class="statData">{{request.player.attack}}</td>
+                    <td class="statData">{{request.player.defense}}</td>
+                    <td class="statData">{{request.player.stamina_limit}}</td>
+                    <td class="statData">{{request.player.energy_limit}}</td>
+                    <td class="statData">{{request.player.health_limit}}</td>
+                    <td class="statData">{{request.player.strike}}%</td>
+                    <td class="statData">{{request.player.strike_boost}}%</td>
+                    <td class="statData">{{request.player.damage_boost}}%</td>
+                    <td class="statData">{{request.player.dodge}}%</td>
+                    <td class="statData">{{request.player.luck}}%</td>
+                </tr>
+                <tr>
+                    <th>Items:</th>
+                    <td class="statData">{{request.player.attack_delta}}</td>
+                    <td class="statData">{{request.player.defense_delta}}</td>
+                    <td class="statData">{{request.player.stamina_delta}}</td>
+                    <td class="statData">{{request.player.energy_delta}}</td>
+                    <td class="statData">{{request.player.health_delta}}</td>
+                    <td class="statData">{{request.player.strike_delta}}%</td>
+                    <td class="statData">{{request.player.strike_boost_delta}}%</td>
+                    <td class="statData">{{request.player.damage_boost_delta}}%</td>
+                    <td class="statData">{{request.player.dodge_delta}}%</td>
+                    <td class="statData">{{request.player.luck_delta}}%</td>
+                </tr>
+                <tr>
+                    <th>Total:</th>
+                    <td class="statData">{{request.player.attack|add:request.player.attack_delta}}</td>
+                    <td class="statData">{{request.player.defense|add:request.player.defense_delta}}</td>
+                    <td class="statData">{{request.player.stamina_limit|add:request.player.stamina_delta}}</td>
+                    <td class="statData">{{request.player.energy_limit|add:request.player.energy_delta}}</td>
+                    <td class="statData">{{request.player.health_limit|add:request.player.health_delta}}</td>
+                    <td class="statData">{{request.player.strike|add:request.player.strike_delta}}%</td>
+                    <td class="statData">{{request.player.strike_boost|add:request.player.strike_boost_delta}}%</td>
+                    <td class="statData">{{request.player.damage_boost|add:request.player.damage_boost_delta}}%</td>
+                    <td class="statData">{{request.player.dodge|add:request.player.dodge_delta}}%</td>
+                    <td class="statData">{{request.player.luck|add:request.player.luck_delta}}%</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    {% if request.player.skill %}
+    <p>You have {{request.player.skill}} unused skill points. <a href="{{SITE_URL}}/skill">Use them</a></p>
+    {% endif %}
+    <div class="clear"></div>
+
+
+    {% if inactive_items %}
+    <img class="titleAddBtn" src="{{SITE_URL}}/@@/icoAdd.png" onclick="javascript:toggle('itemSection');" width="18" height="18" alt="Add"/>
+    <div class="inventoryCount">Inventory: {{request.player.inventory_count}}/{{request.player.inventory_capacity}}</div>
+    <h2 class="addButtonBar">Items:</h2>
+    <div class="clear"></div>
+    <div id="itemSection">
+        {% for item in inactive_items %}
+        <div class="inventory-slot">
+            <span class="largeTitle">{{item.item.name}}</span>
+            <img src="{{MEDIA_URL}}/items/{{item.item.id}}{% if item.item.has_quality %}-{{item.quality}}{% endif %}.png" alt="" />
+            <div class="inventoryStats">
+                <table class="info">
+                    {% if item.item.attack %}
+                    <tr>
+                        <th>ATK</th>
+                        <td>{{item.item.attack}}</td>
+                    </tr>
+                    {% endif %}
+
+                    {% if item.item.defense %}
+                    <tr>
+                        <th>DEF</th>
+                        <td>{{item.item.defense}}</td>
+                    </tr>
+                    {% endif %}
+
+                    {% if item.item.energy %}
+                    <tr>
+                        <th>EN</th>
+                        <td>{{item.item.energy}}</td>
+                    </tr>
+                    {% endif %}
+
+                    {% if item.item.stamina %}
+                    <tr>	
+                        <th>STA</th>
+                        <td>{{item.item.stamina}}</td>
+                    </tr>
+                    {% endif %}	
+
+                    {% if item.item.health %}
+                    <tr>
+                        <th>HP</th>
+                        <td>{{item.item.health}}</td>
+                    </tr>
+                    {% endif %}
+
+                    {% if item.item.strike %}
+                    <tr>
+                        <th>CS</th><td>{{item.item.strike}}%</td>
+                    </tr>
+                    {% endif %}
+
+                    {% if item.item.dodge %}
+                    <tr>
+                        <th>Dodge</th>
+                        <td>{{item.item.dodge}}%</td>
+                    </tr>
+                    {% endif %}
+
+                    {% if item.item.luck %}
+                    <tr>
+                        <th>Luck</th>
+                        <td>{{item.item.luck}}%</td>
+                    </tr>
+                    {% endif %}
+
+                    {% if item.item.capacity %}
+                    <tr>
+                        <th>Capacity</th>
+                        <td>{{item.item.capacity}}</td>
+                    </tr>
+                    {% endif %}
+
+                    {% if item.item.has_quality %}
+                    <tr>
+                        <th>Quality</th>
+                        <td>{{item.quality}}</td>	
+                    </tr>
+                    {% endif %}
+                </table>
+
+                {% if item.activable %}
+                <form action="{{SITE_URL}}/enable-item" method="post" style="float:left;">
+                    {% csrf_token %}
+                    <div>
+                        <input type="hidden" name="id" value="{{item.id}}" />
+                        <input type="submit" class="button blue" value="Enable" />
+                    </div>
+                </form>
+                {% endif %}
+                <form action="{{SITE_URL}}/drop-item" method="post" style="float:left;">
+                    {% csrf_token %}
+                    <div>
+                        <input type="hidden" name="id" value="{{item.id}}" />
+                        <input type="submit" class="cancel-button red" value="Drop" style="margin-left:10px;" />	
+                    </div>
+                </form>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    <div class="clear"></div>
+    {% endif %}
+
+    {% if inactive_modifiers %}
+    <img class="titleAddBtn" src="{{SITE_URL}}/@@/icoAdd.png" onclick="javascript:toggle('modifiersSection');" width="18" height="18" alt="Add"/>
+    <h2 class="addButtonBar">Modifiers</h2>
+    <div id="modifiersSection">
+        <div id="popModifier" class="popUp">
+            <div class="closeBtn closeModPos" onclick="javascript:toggle('popModifier')">
+            </div>
+            <p>Are you sure you want to use the mod on this item, changes will be permanent?</p>
+            <input type="button" id="modify" class="modBtn blue" value="Enable" > 
+        </div>
+
+        {% for modifier in inactive_modifiers %}
+        {% if not modifier.item %}
+        <div class="mod-slot">
+            <span class="largeTitle">{{modifier.modifier.name}}</span>
+            <img src="{{MEDIA_URL}}/modifiers/{{modifier.modifier.id}}{% if modifier.modifier.has_quality %}-{{modifier.quality}}{% endif %}.png" height="92" width="165" alt="" />			
+            <table class="info">
+                <tr>
+                    {% if modifier.modifier.attack %}<th>attack</th>{% endif %}
+                    {% if modifier.modifier.defense %}<th>defense</th>{% endif %}
+                    {% if modifier.modifier.energy %}<th>energy</th>{% endif %}
+                    {% if modifier.modifier.stamina %}<th>stamina</th>{% endif %}
+                    {% if modifier.modifier.health %}<th>health</th>{% endif %}
+                    {% if modifier.modifier.strike %}<th>strike</th>{% endif %}
+                    {% if modifier.modifier.dodge %}<th>dodge</th>{% endif %}
+                    {% if modifier.modifier.luck %}<th>luck</th>{% endif %}
+                    {% if modifier.modifier.has_quality %}<th>quality</th>{% endif %}
+                </tr>
+                <tr>	
+                    {% if modifier.modifier.attack %}<td>{{modifier.modifier.attack}}</td>{% endif %}
+                    {% if modifier.modifier.defense %}<td>{{modifier.modifier.defense}}</td>{% endif %}
+                    {% if modifier.modifier.energy %}<td>{{modifier.modifier.energy}}</td>{% endif %}
+                    {% if modifier.modifier.stamina %}<td>{{modifier.modifier.stamina}}</td>{% endif %}
+                    {% if modifier.modifier.health %}<td>{{modifier.modifier.health}}</td>{% endif %}
+                    {% if modifier.modifier.strike %}<td>{{modifier.modifier.strike}}</td>{% endif %}
+                    {% if modifier.modifier.dodge %}<td>{{modifier.modifier.dodge}}</td>{% endif %}
+                    {% if modifier.modifier.luck %}<td>{{modifier.modifier.luck}}</td>{% endif %}
+                    {% if modifier.modifier.has_quality %}<td>{{modifier.quality}}</td>{% endif %}
+                </tr>
+            </table>
+            {% if not modifier.item %}
+            <form action="{{SITE_URL}}/enable-modifier" method="post" style="float:left;">
+                {% csrf_token %}
+                <input type="hidden" name="id" value="{{modifier.id}}">
+                <input type="button" class="modBtn blue" value="Enable" >
+                <!--<label for="item">Item</label>-->
+                <select id="item" name="item">
+                    <option value="default">--Select an Item--</option>
+                    {% for item in items %}				
+                    {% if item.item.section in modifier.modifier.sections_whitelist.all or item.item in modifier.modifier.items_whitelist.all %}
+                    {% if item.item.section not in modifier.modifier.sections_blacklist.all and item.item not in modifier.modifier.items_blacklist.all %}
+                    <option value={{item.id}}>{{item.item.name}}</option>
+                    {% endif %}
+                    {% endif %}
+                    {% endfor %}
+                </select>
+            </form>
+            {% endif %}
+            <form class="modCancel" action="{{SITE_URL}}/drop-modifier" method="post" style="float:left;">
+                {% csrf_token %}
+                <div>
+                    <input type="hidden" name="id" value="{{modifier.id}}" />
+                    <input type="submit" class="modBtn red" value="Drop" />
+                </div>
+            </form>
+            <!--
+            <p class="itemText">{{modifier.modifier.description}}</p>
+            -->
+        </div>
+        {% endif %}
+        {% endfor %}
+    </div>
+    <div class="clear"></div>
+    {% endif %}
+
+    {% if things %}
+    <img class="titleAddBtn" src="/coinimpact/@@/icoAdd.png" onclick="javascript:toggle('thingsSection')" width="18" height="18" alt="Add">
+    <h2 class="addButtonBar">Things</h2>
+    <div id="thingsSection">	
+        {% for thing in things %}
+        <div class="thing-slot">
+            <span class="largeTitle">{{thing.thing.name}}</span>
+            <img src="{{MEDIA_URL}}/things/{{thing.thing.id}}.png" alt="" >
+            <p class="itemText">{{thing.thing.description}}</p>
+        </div>
+        {% endfor %}
+    </div>
+    <div class="clear"></div>	
+    {% endif %}
+
+    {% if collections %}
+    <img class="titleAddBtn" src="/coinimpact/@@/icoAdd.png" onclick="javascript:toggle('collectionSection')" width="18" height="18" alt="Add">
+    <h2 class="addButtonBar">Collections</h2>
+    <div id="collectionSection">
+        {% for k,v in collections.items %}
+        <div class="combineSection">
+            <h2>assembled: Name</h2>
+            {% for t in v %}
+            <div class="combinePiece" onmouseover="javascript:show('{{t.id}}t')" onmouseout="javascript:hide('{{t.id}}t')">
+                <p>+</p>
+                <img src="{{MEDIA_URL}}/things/{{t.id}}t.png" alt="" />
+                <div id="{{t.id}}t" class="upArrowTooltip assemblePos">
+                    <p>{{t.name}}</p>
+                </div>
+            </div>
+            {% endfor %}
+            <div class="combineFinal">
+                <p class="equal">=</p>
+                <img src="{{MEDIA_URL}}/items/{{k}}s.png" alt="" />
+            </div>
+            <form action="{{SITE_URL}}/assemble-item" method="post">
+                <div>
+                    <input type="hidden" name="id" value="{{k}}" />
+                    <input type="submit" class="button blue" value="Assemble" />
+                </div>
+            </form>
+        </div>
+        {% endfor %}
+    </div>
+    <div class="clear"></div>
+    {% endif %}
+
+    {% if boosts %}
+    <img class="titleAddBtn" src="/coinimpact/@@/icoAdd.png" onclick="javascript:toggle('boostsSection')" width="18" height="18" alt="Add">
+    <h2 class="addButtonBar">Boosts</h2>
+    <div id="boostsSection">
+        {% for boost in boosts %}
+        <div class="inventory-item">
+            <div style="height:5em;">
+                <h3>{{boost.boost.name}}</h3>
+                <p>{{boost.boost.description}}</p>
+            </div>
+            <img src="{{MEDIA_URL}}/boosts/{{boost.boost.id}}.png" alt="" />
+            <form action="{{SITE_URL}}/apply-boost" method="post">
+                <div>
+                    {% csrf_token %}
+                    <input type="hidden" name="id" value="{{boost.id}}" />
+                    <input type="submit" class="button" value="Apply" />
+                </div>
+            </form>
+        </div>
+        {% endfor %}
+    </div>
+    <div class="clear"></div>
+    {% endif %}
+
+    {% if active_boosts %}
+    <img class="titleAddBtn" src="/coinimpact/@@/icoAdd.png" onclick="javascript:toggle('activeBoostSection')" width="18" height="18" alt="Add">
+    <h2 class="addButtonBar">Active Boosts</h2>
+    <div id="activeBoost">
+        {% for boost in active_boosts %}
+        <div class="inventory-item">
+            <div style="height:5em;">
+                <h3>{{boost.boost.name}}</h3>
+                <p>{{boost.boost.description}}</p>
+            </div>
+            <img src="{{MEDIA_URL}}/boosts/{{boost.boost.id}}.png" alt="" />
+            Expires {{boost.expires}}
+        </div>
+        {% endfor %}
+    </div>
+    <div class="clear"></div>
+    {% endif %}
+</div>
+{% endblock %}

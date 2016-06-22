@@ -1,0 +1,969 @@
+<?php
+class Player extends CI_Model {
+    
+    public $place_id;
+    public $account;
+    public $items = null;
+    public $missions = null;
+    public $places = null;
+    
+    public static $default_inventory_capacity = 10;
+    
+    public function __construct($data = null) {
+        parent::__construct($data);
+        $this->db->select('place_id');
+        $this->db->where('player_id', $this->id);
+        $this->db->where('active', 1);
+        $this->db->from('player_places');
+        
+        $query = $this->db->get();
+        $row = $query->row_array();
+
+        $this->place_id = $row['place_id'];
+        $this->convertRefillToUT();
+    }
+    public static function getUsernameByID($id) {
+        $db = get_instance()->db;
+        $account_id = Player::getAccountIDByID($id);
+        $db->select('username');
+        $db->where('id', $account_id);
+        $db->from('accounts');
+        
+        $query = $db->get();
+        $result = $query->row_array();
+        
+        if(!$result) {
+            return null;
+        }
+        
+        return $result['username'];
+    }
+    public static function getAccountIDByID($id) {
+        $db = get_instance()->db;
+        $db->select('account_id');
+        $db->where('id', $id);
+        $db->from('players');
+        
+        $query = $db->get();
+        $result = $query->row_array();
+        
+        if(!$result) {
+            return null;
+        }
+        
+        return $result['account_id'];
+    }
+    public static function getIDByAccountID($id) {
+        $this->db->select('id');
+        $this->db->where('account_id', $id);
+        $this->db->from('players');
+        
+        $query = $this->db->get();
+        $result = $query->row_array();
+        
+        if(!$result) {
+            return null;
+        }
+        
+        return $result['id'];
+    }
+    private function convertRefillToUT() { // Where UT is UNIX_TIMESTAMP
+        $this->health_refill = strtotime($this->health_refill);
+        $this->energy_refill = strtotime($this->energy_refill);
+        $this->stamina_refill = strtotime($this->stamina_refill);
+    }
+    public function getRespawnTimes() {
+        $bosses = $this->getAvailableBosses();
+        $respawn_times = array();
+        
+        foreach($bosses as $boss) {
+            $respawn_times[] = $this->getRespawnTimeFor($boss);
+        }
+        
+        return $respawn_times;
+    }
+    public function getRespawnTimeFor(Boss $boss) {
+        $this->db->select('*');
+        $this->db->from('player_bosses');
+        $this->db->where('player_id', $this->id);
+        $this->db->where('boss_id', $boss->id);
+        $this->db->order_by('generated', 'desc');
+        
+        $query = $this->db->get();
+        $result = $query->row_array();
+        
+        if(!$result) {
+            return 0;
+        }
+        
+        $player_boss = new PlayerBoss($result);
+        
+        $time = $player_boss->generated+$boss->next_summon;
+        return $time;
+    }
+    public function getDowntimeFor(Boss $boss) {
+        return $this->getRespawnTimeFor($boss)-time();
+    }
+    public function activate(Boss $boss) {
+        $this->db->set('boss_id', $boss->id);
+        $this->db->set('player_id', $this->id);
+        $this->db->insert('player_available_bosses');
+    }
+    public function queryItems() {
+        $this->items = array();
+        $this->db->select('*');
+        $this->db->where('player_id', $this->id);
+        $this->db->from('player_items');
+        
+        $query = $this->db->get();
+        $result_arr = $query->result_array();
+        
+        foreach($result_arr as $result) {
+            $this->items[] = new PlayerItem($result);
+        }
+    }
+    public function queryMissions() {
+        $this->missions = array();
+        $this->db->select('*');
+        $this->db->where('player_id', $this->id);
+        $this->db->from('player_missions');
+        
+        $query = $this->db->get();
+        $result_arr = $query->result_array();
+        
+        foreach($result_arr as $result) {
+            $this->missions[] = new PlayerMission($result);
+        }
+    }
+    public function queryPlaces() {
+        $this->places = array();
+        $this->db->select('*');
+        $this->db->where('player_id', $this->id);
+        $this->db->from('playe_places');
+        
+        $query = $this->db->get();
+        $result_arr = $query->result_array();
+        
+        foreach($result_arr as $result) {
+            $this->places[] = new PlayerPlace($result);
+        }
+    }
+    public function has(Item $item) {
+        if($this->items == null) {
+            $this->queryItems();
+        }
+        foreach($this->items as $player_item) {
+            if($player_item->item_id == $item->id) {
+                return true;
+            }
+        }
+        return false;
+    }
+    public function hasCompleted(Mission $mission) {
+        if($this->missions == null) {
+            $this->queryMissions();
+        }
+        foreach($this->missions as $player_mission) {
+            if($player_mission->mission->id == $mission->id) {
+                return true;
+            }
+        }
+        return false;
+    }
+    public function getProgressFor(Place $place) {
+        $this->db->select('progress');
+        $this->db->where('player_id', $this->id);
+        $this->db->where('place_id', $place->id);
+        $this->db->from('player_places');
+        
+        $query = $this->db->get();
+        $result = $query->row_array();
+        
+        return $result['progress'];
+    }
+    public function tryActivate(Boss $boss) {
+        $requirements = $boss->getRequirements();
+        foreach($requirements as $requirement) {
+            if($requirement.is('item')) {
+                $item = $requirement;
+                if(!$this->has($item)) {
+                    return;
+                }
+            } else if($requirement.is('mission')) {
+                $mission = $requirement;
+                if(!$this->hasCompleted($mission)) {
+                    return;
+                }
+            } else if($requirement.is('place')) {
+                $place = $requirement;
+                if($this->getProgressFor($place) < 100) {
+                    return;
+                }
+            }
+        }
+        $this->activate($boss);
+        $this->showGameInfo('Congratulations! You have successfully unclocked <a href="/bosses">'.$boss->name.'</a>(Boss)');
+    }
+    
+    public function recieveDamage($amount) {
+        $this->health -= $amount;
+        if($this->health < 0) {
+            $this->health = 0;
+        }
+        if($this->isDeath()) {
+            $base_place = new Place(Place::$ids['base']);
+            if($this->energy >= $base_place->energy) {
+                //$this->takeEnergy($base_place->energy);
+                $this->health = 1;
+                $this->showGameInfo("You barely escape alive");
+                $this->travelTo($base_place);
+            }
+        }
+        $this->db->set('health', $this->health);
+        $this->db->where('id', $this->id);
+        $this->db->update('players');
+    }
+    public function takeStamina($amount) {
+        $this->stamina -= $amount;
+        if($this->stamina < 0) {
+            throw new Exception('Not enoughs stamina');
+        }
+        
+        $this->db->set('stamina', $this->stamina);
+        $this->db->where('id', $this->id);
+        $this->db->update('players');
+    }
+    public function awardXP($xp) {
+        $this->experience += $xp;
+        
+        $this->db->set('experience', $this->experience);
+        $this->db->where('id', $this->id);
+        $this->db->update('players');
+        
+        $level = Level::getByXP($this->experience);
+        $this->setLevel($level);
+    }
+    public function awardCredit($credit) {
+        $this->balance += $credit;
+        
+        $this->db->set('balance', $this->balance);
+        $this->db->where('id', $this->id);
+        $this->db->update('players');
+    }
+    public function setLevel(Level $level) {
+        $this->level_id = $level->id;
+        
+        $this->db->set('level_id', $level->id);
+        $this->db->where('id', $this->id);
+        $this->db->update('players');
+    }
+    public function tryTravelTo(Place $place) {
+        if($this->energy < $place->energy) {
+            return 'not_enough_energy';
+        }
+        if($this->isInCombat()) {
+           return 'in_combat';
+        }
+        $this->travelTo($place);
+        return true;
+    }
+    public function travelTo(Place $place) {
+        $this->db->set('active', 0);
+        $this->db->where('player_id', $this->id);
+        $this->db->update('player_places');
+        
+        $this->db->select('id');
+        $this->db->where('player_id', $this->id);
+        $this->db->where('place_id', $place->id);
+        $this->db->from('player_places');
+        
+        $query = $this->db->get();
+        $result = $query->row_array();
+        
+        $this->db->set('active', 1);
+        $this->db->where('id', $result['id']);
+        $this->db->update('player_places');
+        
+        $this->db->set('location_id', $result['id']);
+        $this->db->where('id', $this->id);
+        $this->db->update('players');
+        
+        $this->takeEnergy($place->energy);
+    }
+    public function canEngage(PlayerBoss $player_boss) {
+        return true;
+    }
+    public function canExplore() {
+        if($this->health < 10 || $this->isInCombat() || $this->hasEvent() || 
+                $this->hasTrader()) {
+            return false;
+        }
+        return true;
+    }
+    public function showGameInfo($info) {
+        $this->session->set_userdata(array("game_info" => $info));
+    }
+    public function showGameError($error) {
+        $this->session->set_userdata(array("game_error" => $error));
+    }
+    public function getGameInfo($unset = true) {
+        $tmp = $this->session->userdata('game_info');
+        if($tmp && $unset) {
+            $this->session->unset_userdata('game_info');
+        }
+        return $tmp;
+    }
+     public function getGameError($unset = true) {
+        $tmp = $this->session->userdata('game_error');
+        if($tmp && $unset) {
+            $this->session->unset_userdata('game_error');
+        }
+        return $tmp;
+    }
+    public function takeEnergy($amount) {
+        $this->energy -= $amount;
+        $this->db->set('energy', 'energy-'.(int)$amount, false);
+        $this->db->where('id', $this->id);
+        $this->db->update('players');
+    }
+    public function isDeath() {
+        return $this->health < 0;
+    }
+    public function handleRefill() {
+        $changed_columns = array();
+        foreach(array("energy", "health", "stamina") as $stat) {
+            if($this->{$stat} == $this->{$stat."_limit"}) {
+                $changed_columns[] = $stat."_refill";
+                $this->{$stat."_refill"} = time()+$this->{$stat."_rate"};
+            }
+            else if(time() > $this->{$stat."_refill"}) { // If it is time to refill
+                if($this->{$stat} < $this->{$stat."_limit"}) {
+                    $changed_columns[] = $stat;
+                    $changed_columns[] = $stat.'_refill';
+                    $this->{$stat} += 1+(int)((time() - $this->{$stat."_refill"}) / $this->{$stat."_rate"}); // refill
+                    if($this->{$stat} > $this->{$stat."_limit"}) {
+                        $this->{$stat} = $this->{$stat."_limit"};
+                    }
+                    $this->{$stat."_refill"} = time()+$this->{$stat."_rate"} - 
+                    ((int)(time() - $this->{$stat."_refill"})%$this->{$stat."_rate"}); // and reset timer
+                }
+            }
+        }
+        foreach($changed_columns as $column) {
+            if(substr($column, -strlen('refill')) == 'refill') {
+                $this->db->set($column, date(Globals::MYSQL_DATE_FORMAT, $this->{$column}));
+            } else {
+                $this->db->set($column, $this->{$column});
+            }
+        }
+        if(sizeof($changed_columns)) {
+            $this->db->where('id', $this->id);
+            $this->db->update('players');
+        }
+    }
+    public function save() {
+        // We convert them so they are saved properly
+        $this->health_refill = date("Y-m-d H:i:s", $this->health_refill);
+        $this->energy_refill = date("Y-m-d H:i:s", $this->energy_refill);
+        $this->stamina_refill = date("Y-m-d H:i:s", $this->stamina_refill);
+        parent::save();
+        // And convert them back to normal
+        $this->convertRefillToUT();
+    }
+    public function isInCombat() {
+        $query = $this->db->query('SELECT COUNT(id) as count FROM `player_combatants` WHERE active=1 AND place_id IN (SELECT id FROM player_places WHERE player_id="'.$this->db->escape($this->id).'")');
+        $result = $query->row_array();
+        
+        if($result['count']) {
+            return true;
+        }
+        return false;
+    }
+    public function getAvailableBosses() {
+        $CI = & get_instance();
+        $db = $CI->db;
+        $db->select('boss_id');
+        $db->where('player_id', $this->id);
+        $db->from('player_available_bosses');
+        
+        $query = $db->get();
+        $arrs = $query->result_array();
+        
+        $bosses = array();
+        foreach($arrs as $boss) {
+            $bosses[] = new Boss($boss['boss_id']);
+        }
+        return $bosses;
+    }
+    public function searchBosses() {
+        $query = $this->db->query('SELECT * FROM `player_bosses` AS pb JOIN bosses AS b WHERE pb.player_id="'.$this->db->escape($this->id).'" AND pb.generated+b.timeout>NOW()');
+        
+        $arrs = $query->result_array();
+        $bosses = array();
+        foreach($arrs as $arr) {
+            $bosses[] = new PlayerBoss($arr);
+        }
+        return $bosses;
+    }
+    public function getCurrentPlace() {
+        $this->db->select('*');
+        $this->db->from('player_places');
+        $this->db->where('player_id', $this->id);
+        $this->db->where('active', 1);
+        
+        $query = $this->db->get();
+        $result = $query->row_array();
+
+        return new PlayerPlace($result);
+    }
+    public function tryAdd($obj, $slot_id = null) {
+        if($this->isInventoryFull()) {
+            return 'full_inventory';
+        }
+        $result = null;
+        if($obj instanceof Item) {
+            $result = $this->tryAddItem($obj, $slot_id);
+        } else if($obj instanceof PlayerCombatantItem) {
+            $result = $this->tryAddCombatantItem($obj, $slot_id);
+        } else if($obj instanceof Boost) {
+            $result = $this->tryAddBoost($obj);
+        } else {
+            throw new Exception('Unsupported operation');
+        }
+        if(is_numeric($result)) { 
+            $result_item = new PlayerItem($result);
+            if($this->items != null) {
+                $this->items[] = $result_item;
+            }
+            //$result_item->save();
+            $result_item->tryActivateBosses();
+        }
+        return $result;
+    }
+    public function hasPremiumCoin() {
+        return $this->hasPremiumCoins(1);
+    }
+    public function hasPremiumCoins($amount) {
+        return $this->premium_balance >= $amount;
+    }
+    public function takePremiumCoin() {
+        $this->takePremiumCoins(1);
+    }
+    public function takePremiumCoins($amount) {
+        $this->premium_balance -= $amount;
+        
+        $this->db->set('premium_balance', 
+                'premium_balance-'.$this->db->escape($amount), false);
+        $this->db->where('id', $this->id);
+        $this->db->update('players');
+    }
+    public function tryAddBoost(Boost $boost) {
+        $this->db->set('player_id', $this->id);
+        $this->db->set('boost_id', $boost->id);
+        $this->db->set('collected', 'NOW()',false);
+        $this->db->insert('player_boosts');
+    }
+    public function tryAddItem(Item $item, $slot_id = null) {
+        if($slot_id !== null) {
+            if(!$this->hasEquipSlotFree($slot_id)) {
+                log_message('debug', 'Trying to add item to not free slot id');
+                return false;
+            }
+        } else {
+            //$slot_id = $this->getFreeInventorySlot();
+        }
+        $this->db->set('player_id', $this->id);
+        $this->db->set('item_id', $item->id);
+        $this->db->set('slot_id', $slot_id);
+        $this->db->set('collected', 'NOW()', false);
+        $this->db->insert('player_items');
+        $player_item_id = $this->db->insert_id(); 
+               
+        return $player_item_id;
+    }
+    public function tryAddCombatantItem(PlayerCombatantItem $comb_item, $slot_id = null) {
+        if($comb_item->player_combatant->player_id != $this->id) {
+            log_message('debug', 'Trying to add item with invalid combatant.');
+            return false;
+        }
+        if($slot_id !== null) {
+            if(!$this->hasInventorySlotFree($slot_id)) {
+                log_console('debug', 'Trying to add item to not free slot id');
+                return false;
+            }
+        } else {
+            //$slot_id = $this->getFreeInventorySlot();
+        }
+        $this->db->set('player_id', $this->id);
+        $this->db->set('slot_id', $slot_id);
+        $this->db->set('item_id', $comb_item->item_id);
+        $this->db->set('quality', $comb_item->quality);
+        $this->db->set('durability', $comb_item->durability);
+        $this->db->set('mod_atk', $comb_item->mod_atk);
+        $this->db->set('mod_def', $comb_item->mod_def);
+        $this->db->insert('player_items');
+        $player_item_id = $this->db->insert_id();
+        
+        return $player_item_id;
+    }
+    public function hasInventorySlotFree($slot_id) {
+        if($this->isInventoryFull()) {
+            return false;
+        }
+        foreach($this->items as $player_item) {
+            if($player_item->slot_id == $slot_id) {
+                return false;
+            }
+        }
+        $free_slots = $this->getFreeInventorySlots();
+        
+        return in_array($slot_id, $free_slots);
+    }
+    public function hasEquipSlotFree($slot_id) {
+        foreach($this->items as $player_item) {
+            if($player_item->slot_id == $slot_id) {
+                return false;
+            }
+        }
+        return true;
+    }
+    public function hasEvent() {
+        $this->db->select('id');
+        $this->db->where('completed is null', NULL, false);
+        $this->db->where('place_id IN (SELECT id FROM player_places WHERE player_id='.$this->db->escape($this->db).')', NULL, false);
+        $this->db->from('player_events');
+        
+        $query = $this->db->get();
+        return $query->num_rows > 0;
+    }
+    public function hasTrader() {
+        $this->db->select('id');
+        $this->db->where('active', true);
+        $this->db->where('place_id IN (SELECT id FROM player_places WHERE player_id='.$this->db->escape($this->db).')', NULL, false);
+        $this->db->from('player_traders');
+        
+        $query = $this->db->get();
+        return $query->num_rows > 0;
+    }
+    public function getFreeInventorySlot() {
+        $free_slots = $this->getFreeInventorySlots();
+        if(!sizeof($free_slots)) {
+            return false;
+        }
+        return $free_slots[0];
+    }
+    public function getFreeInventorySlots() {
+        $taken_slots = array();
+        $free_slots = array();
+        foreach($this->items as $player_item) {
+            $taken_slots[] = $player_item->slot_id;
+        }
+        sort($taken_slots);
+        for($i = 0; $i<$this->getInventoryCapacity();++$i) {
+            if(!in_array($i, $taken_slots)) {
+                $free_slots[] = $i;
+            }
+        }
+        return $free_slots;
+    }
+    public function isInventoryFull() {
+        $inventory_items = $this->getItemsInInventory();
+        return sizeof($inventory_items) >= $this->getInventoryCapacity();
+    }
+    public function getItemsInInventory() {
+        if($this->items == null) {
+            $this->queryItems();
+        }
+        $items = array();
+        foreach($this->items as $item) {
+            if($item->isInInventory()) {
+                $items[] = $item;
+            }
+        }
+        return $items;
+    }
+    public function getInventoryCapacity() {
+        $this->db->select_sum('i.capacity', 'capacity');
+        $this->db->from('player_items pi');
+        $this->db->join('items i', 'pi.item_id = i.id');
+        $this->db->where('pi.player_id', $this->id);
+        $this->db->where('pi.slot_id is not null');
+        
+        $query = $this->db->get();
+        $result = $query->row_array();
+        $cap_from_items = $result['capacity'];
+        if($cap_from_items === null) {
+            $cap_from_items = 0;
+        }
+        return Player::$default_inventory_capacity+$cap_from_items;
+    }
+    public function trySummon(Boss $boss) {
+        if(!$this->canSummon($boss)) {
+            return false;
+        }
+        $this->summon($boss);
+        $this->showGameInfo($boss->name.' summoned successfully.');
+    }
+    public function summon(Boss $boss) {
+        $id = '';
+        do{
+            $id = generateRandomString();
+            
+            $this->db->select('share_id');
+            $this->db->where('share_id', $id);
+            $this->db->from('player_bosses');
+            
+            $query = $this->db->get();
+            $result = $query->row_array();
+        } while ($result);
+        $this->db->set('player_id', $this->id);
+        $this->db->set('boss_id', $boss->id);
+        $this->db->set('health', $boss->health);
+        $this->db->set('generated', 'NOW()', false);
+        $this->db->set('share_id', $id);
+        $this->db->insert('player_bosses');
+        
+        $player_boss_id = $this->db->insert_id();
+        
+        $arr = array(
+            'player_id' => $this->id,
+            'player_boss_id' => $player_boss_id
+        );
+        
+        $this->db->insert('player_boss_combatants', $arr);
+    }
+    public function canSummon(Boss $boss) {
+        if($this->getDowntimeFor($boss)) {
+            return false;
+        }
+        // outlaw guards doesn't have respawn time but you can have only one summoned at a time
+        if($boss->id == Boss::$ids['outlaw_guards'] && $this->hasBossActive($boss)) {
+            return false;
+        }
+        $this->db->select('id');
+        $this->db->where('player_id', $this->id);
+        $this->db->where('boss_id', $boss->id);
+        $this->db->from('player_available_bosses');
+        
+        $query = $this->db->get();
+        $result = $query->row_array();
+        
+        if(!$result) {
+            return false;
+        }
+//        $requirements = $boss->getRequirements();
+//        foreach($requirements as $requirement) {
+//            if($requirement->is('item')) {
+//                $item = $requirement;
+//                if(!$this->has($item)) {
+//                    return false;
+//                }
+//            } else if($requirement->is('mission')) {
+//                $mission = $requirement;
+//                if(!$this->hasCompleted($mission)) {
+//                    return false;
+//                }
+//            } else if($requirement->is('place')) {
+//                $place = $requirement;
+//                if($this->getProgressFor($place) < 100) {
+//                    return false;
+//                }
+//            }
+//        }
+        return true;
+    }
+    public function getActiveBosses() {
+        $query = $this->db->query('SELECT player_id, player_boss_id
+FROM `player_boss_combatants`
+WHERE player_id ="'.$this->id.'"');
+        
+        $result = $query->result_array();
+        
+        $ret = array();
+        foreach($result as $arr) {
+            $ret[] = new PlayerBoss($arr['player_boss_id']);
+        }
+        return $ret;
+    }
+    public function hasBossActive(Boss $boss) {
+        $this->db->select('id');
+        $this->db->where('player_id', $this->id);
+        $this->db->where('boss_id', $boss->id);
+        $this->db->where('completed is NULL', NULL, false);
+        $this->db->where('NOT is_boss_expired(id)', NULL, false);
+        $this->db->from('player_bosses');
+
+        $query = $this->db->get();
+        $result = $query->row_array();
+        if($result) {
+            return true;
+        }
+        return false;
+    }
+    public function getCurrentBoss() {
+        $this->db->select('*');
+        $this->db->where('player_id', $this->id);
+        $this->db->where('is_current', true);
+        $this->db->from('player_boss_combatants');
+        
+        $query = $this->db->get();        
+        $result = $query->row_array();
+        if(!$result) {
+            return null;
+        }
+        return new PlayerBoss($result['player_boss_id']);
+    }
+    public function getCurrentCombatant() {
+        $this->db->select('*');
+        $this->db->where('place_id IN (SELECT id FROM player_places WHERE player_id='.$this->db->escape($this->id).')', null, false);
+        $this->db->where('active', true);
+        $this->db->from('player_combatants');
+        
+        $query = $this->db->get();
+        $result = $query->row_array();
+        if(!$result) {
+            return null;
+        }
+        return new PlayerCombatant($result);        
+    }
+    public function tryJoinBossFight($share_id, $boss_name, $level) {
+        $query = $this->db->query("SELECT * FROM player_bosses WHERE share_id=".$this->db->escape($share_id)
+                . " AND boss_id IN (SELECT id FROM bosses WHERE name=".$this->db->escape($boss_name)." AND level=".$this->db->escape($level).")");
+        $result = $query->row_array();
+        
+        if(!$result) {
+            return false;
+        }
+        
+        $player_boss = new PlayerBoss($result);
+        
+        $this->db->select('id');
+        $this->db->where('player_id', $this->id);
+        $this->db->where('player_boss_id', $result['id']);
+        $this->db->from('player_boss_combatants');
+        
+        $query_existing = $this->db->get();
+        $result_existing = $query_existing->row_array();
+        
+        if($result_existing) {
+            return 'already_fightning';
+        }
+        
+        if($player_boss->getCombatantsCount() >= $player_boss->boss->max_players) {
+            return 'raid_full';
+        }
+        
+        $this->db->set('player_id', $this->id);
+        $this->db->set('player_boss_id', $result['id']);
+        $this->db->insert('player_boss_combatants');
+        
+        return $player_boss;
+    }
+    public function tryAttack(PlayerBoss $player_boss) {
+        $this->db->where('player_id', $this->id);
+        $this->db->set('is_current', false);
+        $this->db->update('player_boss_combatants');
+        
+        $this->db->where('player_id', $this->id);
+        $this->db->where('player_boss_id', $player_boss->id);
+        $this->db->set('is_current', true);
+        $this->db->update('player_boss_combatants');
+        $this->showGameInfo($player_boss->boss->name.' is now your current traget.');
+    }
+    public function canAttack() {
+        if($this->health < 10) {
+            return false;
+        }
+        return true;
+    }
+    public function hasIntroPassed() {
+        $this->db->select('passed_intro');
+        $this->db->where('id', $this->id);
+        $this->db->from('players');
+        
+        $query = $this->db->get();
+        $result = $query->row_array();
+        return $result['passed_intro'];
+    }
+    public function setIntroPassed() {
+        $this->session->set_userdata('passed_intro', true);
+        $this->db->set('passed_intro', true);
+        $this->db->where('id', $this->id);
+        $this->db->update('players');
+    }
+    public function attackPlayerCombatant(PlayerCombatant $p_combatant) {
+        $player_attack = $this->getAttack();
+        $player_defense = $this->getDefense();
+        $low = 75;
+        $high = 120;
+        $dodge_value = 10 + $p_combatant->combatant->dodge;
+        $low_roll = $dodge_value + 1;
+        $high_roll = 95 - round(95 * ($player_attack / 100));
+        //Get attack odds
+        $roll = roll(100);
+        $dmg = 0;
+        if ($roll < $low_roll) {
+            // DMG remains 0
+        } elseif ($roll < $high_roll + 1) {
+            $strike_multiplier = roll($high, $low);
+            $dmg = round(($player_attack + (.25 * $player_defense)) * (($strike_multiplier - $p_combatant->combatant->dodge) / 100));
+        } elseif ($roll < ($high_roll + 1) + round(.6 * (100 - ($high_roll + 1)))) {
+            $strike_multiplier = 200;
+            $dmg = round(($player_attack + (.25 * $player_defense)) * (($strike_multiplier - $p_combatant->combatant->dodge) / 100));
+        } else {
+            $strike_multiplier = 300;
+            $dmg = round(($player_attack + (.25 * $player_defense)) * (($strike_multiplier - $p_combatant->combatant->dodge) / 100));
+        }
+        $this->dealDamageTo($p_combatant, $dmg);
+        return $dmg;        
+    }
+    public function attackPlayerBoss(PlayerBoss $p_boss) {
+        $player_attack = $this->getAttack();
+        $player_defense = $this->getDefense();
+        $low = 75;
+        $high = 120;
+        $high_roll = 95 - round(95 * ($player_attack / 100));
+        $roll = roll(100);
+        $dmg = 0;
+        if ($roll < $high_roll + 1) {
+            $strike_multiplier = roll($high);
+            $dmg = round(($player_attack + (.25 * $player_defense)) * ($strike_multiplier / 100));
+        } elseif ($roll < ($high_roll + 1) + round(.6 * (100 - ($high_roll + 1)))) {
+            $strike_multiplier = 200;
+            $dmg = round(($player_attack + (.25 * $player_defense)) * ($strike_multiplier / 100));
+        } else {
+            $strike_multiplier = 300;
+            $dmg = round(($player_attack + (.25 * $player_defense)) * ($strike_multiplier / 100));
+        }
+        $this->dealDamageTo($p_boss, $dmg);
+        return $dmg;
+    }
+    public function attack($target) {
+        if($target instanceof PlayerCombatant) {
+            return $this->attackPlayerCombatant($target);
+        } else if($target instanceof PlayerBoss) {
+            return $this->attackPlayerBoss($target);
+        }
+    }
+    public function dealDamageTo($combatant, $dmg) {
+        if($combatant instanceof PlayerBoss) {
+            $this->dealDamageToBoss($combatant, $dmg);
+        } else if($combatant instanceof PlayerCombatant) {
+            $this->dealDamageToCombatant($combatant, $dmg);
+        }
+    }
+    public function dealDamageToBoss(PlayerBoss $p_boss, $dmg) {
+        $p_boss->recieveDamage($dmg);
+        $this->db->set('damage', 'damage+'.$this->db->escape($dmg), false);
+        $this->db->where('player_boss_id', $p_boss->id);
+        $this->db->where('player_id', $this->id);
+        $this->db->update('player_boss_combatants');
+    }
+    public function dealDamageToCombatant(PlayerCombatant $p_combatant, $dmg) {
+        $p_combatant->recieveDamage($dmg);
+    }
+    public function getVehicle() {
+        return $this->getItemBySlot(13);
+    }
+    public function getItemBySlot($id) {
+        $this->db->select('*');
+        $this->db->where('player_id', $this->id);
+        $this->db->where('slot_id', $id);
+        $this->db->from('player_items');
+        
+        $query = $this->db->get();
+        $result = $query->row_array();
+        
+        if(!$result) {
+            return null;
+        }
+        
+        return new PlayerItem($result);
+    }
+    public function getAttack() {
+        $this->db->select('SUM(i.attack) as attack');
+        $this->db->from('player_items pi');
+        $this->db->join('items i', 'pi.item_id=i.id');
+        $this->db->where('pi.player_id', $this->id);
+        $this->db->where('pi.slot_id is not null', NULL, false);
+        
+        $query = $this->db->get();
+        $result = $query->row_array();
+        
+        return $this->attack+$result['attack'];
+    }
+    public function getStrike() {
+        $this->db->select('SUM(i.strike) as strike');
+        $this->db->from('player_items pi');
+        $this->db->join('items i', 'pi.item_id=i.id');
+        $this->db->where('pi.player_id', $this->id);
+        $this->db->where('pi.slot_id is not null', NULL, false);
+        
+        $query = $this->db->get();
+        $result = $query->row_array();
+        
+        return $this->strike+$result['strike'];
+    }
+    public function getDefense() {
+        $this->db->select('SUM(i.defense) as defense');
+        $this->db->from('player_items pi');
+        $this->db->join('items i', 'pi.item_id=i.id');
+        $this->db->where('pi.player_id', $this->id);
+        $this->db->where('pi.slot_id is not null', NULL, false);
+        
+        $query = $this->db->get();
+        $result = $query->row_array();
+        
+        return $this->defense+$result['defense'];
+    }
+    public function getDodge() {
+        $this->db->select('SUM(i.dodge) as dodge');
+        $this->db->from('player_items pi');
+        $this->db->join('items i', 'pi.item_id=i.id');
+        $this->db->where('pi.player_id', $this->id);
+        $this->db->where('pi.slot_id is not null', NULL, false);
+        
+        $query = $this->db->get();
+        $result = $query->row_array();
+        
+        return $this->dodge+$result['dodge'];
+    }
+    public function generateRandomItem() {
+        $this->db->query('SET @rnd := RAND()');
+        
+        $this->db->select('id');
+        $this->db->where('@rnd > coeff_min', NULL, false);
+        $this->db->where('@rnd <= coeff_max', NULL, false);
+        $this->db->from('rarities');
+        
+        $query = $this->db->get();
+        $result = $query->row_array();
+        
+        $this->db->select('*');
+        $this->db->where('from_store', true);
+        $this->db->where('rarity_id', $result['id']);
+        $this->db->from('items');
+        $this->db->order_by('RAND()');
+        $this->db->limit(1);
+        
+        $query = $this->db->get();
+        $result = $query->row_array();
+        
+        if(!$result) {
+            return null;
+        }
+        
+        return new Item($result);
+    }
+    public function getIntroPage() {
+        $this->db->select('page');
+        $this->db->where('player_id', $this->id);
+        $this->db->from('intro_info');
+        
+        $query = $this->db->get();
+        $result = $query->row_array();
+        
+        return $result['page'];
+    }
+}
+?>

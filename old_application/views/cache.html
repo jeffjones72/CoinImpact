@@ -1,0 +1,43 @@
+{# Copyright (C) 2012 Down Range Games, Inc #}
+{# 1084 Paloma Rd., Monterey, CA 93940 #}
+{% extends "base.html" %}
+{% block content %}
+
+{% for cache in caches %}
+<div class="box">
+    <h2 class="page">{{cache.name}}</h2>
+    <img src="{{MEDIA_URL}}/caches/{{cache.id}}.png" alt="" />
+    <p>{{cache.description}}</p>
+    {% for item in cache.possible_items %}
+    <div class="pad" style="float:left;height: 14em;width:155px;">
+        <img src="{{MEDIA_URL}}/items/{{item.id}}{% if item.has_quality %}-4{% endif %}s.png" alt="" />
+        <h4>{{item.name}}</h4>
+        <p>{{item.description}}</p>
+    </div>
+    {% endfor %}
+    {% for thing in cache.possible_things %}
+    <div class="pad" style="float:left;height: 14em;width:155px;">
+        <img src="{{MEDIA_URL}}/things/{{thing.id}}s.png" alt="" />
+        <h4>{{thing.name}}</h4>
+        <p>{{thing.description}}</p>
+    </div>
+    {% endfor %}
+    {% for boost in cache.possible_boosts %}
+    <div class="pad" style="float:left;height: 14em;width:155px;">
+        <img src="{{MEDIA_URL}}/boosts/{{boost.id}}s.png" alt="" />
+        <h4>{{boost.name}}</h4>
+        <p>{{boost.description}}</p>
+    </div>
+    {% endfor %}
+    {% for modifier in cache.possible_modfiers %}
+    <div class="pad" style="float:left;height: 14em;width:155px;">
+        <img src="{{MEDIA_URL}}/modifiers/{{modifier.id}}{% if modifier.has_quality %}-4{% endif %}s.png" alt="" />
+        <h4>{{modifier.name}}</h4>
+        <p>{{modifier.description}}</p>
+    </div>
+    {% endfor %}
+    <div class="clear"></div>
+</div>
+{% endfor %}
+
+{% endblock %}

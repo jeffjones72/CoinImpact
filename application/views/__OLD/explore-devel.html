@@ -1,0 +1,16 @@
+{# Copyright (C) 2012 Down Range Games, Inc #}
+{# 1084 Paloma Rd., Monterey, CA 93940 #}
+{% extends "base.html" %}
+{% block content %}
+<div id="box"></div>
+<div style="height:1000px;">
+    <img id="img" src="{{SITE_URL}}/@@/country_a.jpg" alt="" onmousemove="move(this)" style="cursor:crosshair;positxion:absolute;" />
+</div>
+<script type="text/javascript">
+    function move(obj) {
+        y = parseInt((window.event.y + document.body.scrollTop - obj.offsetTop) / obj.height * 10000);
+        x = parseInt((window.event.x + document.body.scrollLeft - obj.offsetLeft) / obj.width * 10000);
+        document.getElementById("box").innerHTML = x + " " + y;
+    }
+</script>
+{% endblock %}

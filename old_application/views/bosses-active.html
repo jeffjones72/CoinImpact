@@ -1,0 +1,29 @@
+{# Copyright (C) 2012 Down Range Games, Inc #}
+{# 1084 Paloma Rd., Monterey, CA 93940 #}
+{% extends "base.html" %}
+{% block content %}
+
+<div class="box">
+    {% for boss in player_bosses %}
+    <div class="box3">
+        <div style="float:left;width:300px;">
+            <img src="/data/bosses/{{boss.boss.id}}.png" alt="" />
+        </div>
+        <div style="float:right;width:370px;">
+            <h2 class="fancy">{{boss.boss.name}}</h2>
+            <p>{{boss.boss.description}}</p>
+            Health: {{boss.health}}/{{boss.boss.health}}
+            <!--
+            <form action="/engage-boss" method="post">
+                    <div>
+                            <input type="hidden" name="id" value="{{boss.id}}" />
+                            <input type="submit" class="button" value="Engage" />
+                    </div>
+            </form>
+            -->
+        </div>
+        <div class="clear"></div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

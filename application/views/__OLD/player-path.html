@@ -1,0 +1,14 @@
+{# Copyright (C) 2012 Down Range Games, Inc #}
+{# 1084 Paloma Rd., Monterey, CA 93940 #}
+{% extends "base.html" %}
+{% block content %}
+{{paths}}
+{% for path in paths %}
+<table class="info">
+    {% for rank in path %}
+    <tr><td>{{rank}}</td></tr>
+    {% endfor %}
+</table>
+{% endfor %}
+
+{% endblock %}

@@ -1,0 +1,170 @@
+{# Copyright (C) 2012 Down Range Games, Inc #}
+{# 1084 Paloma Rd., Monterey, CA 93940 #}
+{% extends "base.html" %}
+{% block content %}
+
+<div class="box" style="height: 300px;">
+    <img class="hideIcon" onclick="javascript:hide('location');" src="{{SITE_URL}}/@@/camera.png" alt="" height="25" width="25"/>
+    <div class="locationTitleTab" onclick="javascript:show('location');">Base Camp Info</div>
+    <!--
+    <img style="position: absolute;margin-top: 25px;" src="{{MEDIA_URL}}/places/base_camp_01.jpg" alt="" width="700" height="276" />
+    -->
+    <img style="position: absolute;margin-top: 25px;" src="{{SITE_URL}}/@@/base_camp_01.jpg" alt="" width="700" height="276" />
+    <div id="location" class="baseLocation">
+        <p class="bold">basecamp info</p>
+    </div>
+</div>
+
+<div style="height:430px;">
+    <div class="brownSectionBtn" onclick="javascript:showonlyone('section4')">
+        STORAGE
+    </div>
+    <div class="yellowSectionBtn" onclick="javascript:showonlyone('section3')">
+        NOMAD SHOP
+    </div>
+    <div class="blueSectionBtn" onclick="javascript:showonlyone('section2')">
+        INVENTORY
+    </div>
+    <div class="tanSectionBtn" onclick="javascript:showonlyone('section1');">
+        MISSIONS
+    </div>
+
+    <div class="baseMission section" id="section1">
+        <h2 class="baseTitles">There are 4 missions available today</h2>
+
+        {% for mission in missions %}
+        {% if mission.progress = 100 and not mission.completed %}
+        <div class="">
+            <h2>Mission Completed</h2>
+            <p>Congratulations, you completed {{mission.mission.name}}.</p>
+            <form action="{{SITE_URL}}/comfirm-mission-completion" method="post">
+                <div>
+                    <input type="hidden" name="id" value="{{mission.id}}" />
+                    <input class="button" type="submit" value="OK" />
+                </div>
+            </form>
+        </div>
+        {% endif %}
+        {% endfor %}
+
+        <div class="">
+            {% for mission in missions %}
+            {% if not mission.completed %}
+            <div style="background-color:white;padding:10px;margin-bottom:10px;">
+                {% else %}
+                <div style="background-color:#ccc;padding:10px;margin-bottom:10px;">
+                    {% endif %}
+                    <img src="{{MEDIA_URL}}/missions/{{mission.mission.id}}s.png" alt="" style="float:right;margin: 0 0 10px 10px;"/>
+                    <h1>{{mission.mission.name}}</h1>
+                    <p style="height:4em;">{{mission.mission.description}}</p>
+                    <!--{% if not mission.started %}
+                            <form action="{{SITE_URL}}/accept-mission" method="post">
+                                    {% csrf_token %}
+                                    <div>
+                                            <input type="hidden" name="id" value="{{mission.id}}" />
+                                            <input type="submit" class="button" value="Accept" />
+                                    </div>
+                            </form>
+                    {% else %}
+                            <form action="{{SITE_URL}}/quit-mission" method="post">
+                                    {% csrf_token %}
+                                    <div>
+                                            <input type="hidden" name="id" value="{{mission.id}}" />
+                                            <input type="submit" class="button" value="Quit" />
+                                    </div>
+                            </form>
+                    {% endif %}-->
+                    <div class="progress-box">{{mission.progress}}%</div>
+                    <div>
+                        {% if mission.required_items %}
+                        Items: {{mission.found_items}}/{{mission.required_items}}
+                        {% endif %}
+                        {% if mission.required_things %}
+                        Things: {{mission.found_things}}/{{mission.required_things}}
+                        {% endif %}
+                        {% if mission.required_combatants %}
+                        Combatants: {{mission.found_combatants}}/{{mission.required_combatants}}
+                        {% endif %}
+                        {% if mission.required_events %}
+                        Events: {{mission.found_events}}/{{mission.required_events}}
+                        {% endif %}
+                        {% if mission.mission.credit_reward or mission.mission.experience_reward %}
+                        Rewards:
+                        {% if mission.mission.credit_reward %}
+                        {{mission.mission.credit_reward}} coins
+                        {% endif %}
+                        {% if mission.mission.experience_reward %}
+                        {{mission.mission.experience_reward}} experience
+                        {% endif %}
+                        {% endif %}
+                    </div>
+                    <div class="clear"></div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>          
+
+        <div class="baseInventory section" id="section2">			
+            <h2 class="baseTitles">Inventory: {{request.player.inventory_count}}/{{request.player.inventory_capacity}}</h2>
+
+            {% if inactive_items %}
+            {% for item in inactive_items %}
+            <div class="large-slot">
+                <span class="largeTitle">{{item.item.name}}</span>
+                <img src="{{MEDIA_URL}}/items/{{item.item.id}}{% if item.item.has_quality %}-{{item.quality}}{% endif %}.png" height="92" width="165" alt="" />
+                <table class="info">
+                    <tr>
+                        {% if item.item.attack %}<th>attack</th>{% endif %}
+                        {% if item.item.defense %}<th>defense</th>{% endif %}
+                        {% if item.item.energy %}<th>energy</th>{% endif %}
+                        {% if item.item.stamina %}<th>stamina</th>{% endif %}
+                        {% if item.item.health %}<th>health</th>{% endif %}
+                        {% if item.item.strike %}<th>strike</th>{% endif %}
+                        {% if item.item.dodge %}<th>dodge</th>{% endif %}
+                        {% if item.item.luck %}<th>luck</th>{% endif %}
+                        {% if item.item.has_quality %}<th>quality</th>{% endif %}	
+                    </tr>
+                    <tr>
+                        {% if item.item.attack %}<td>{{item.item.attack}}</td>{% endif %}
+                        {% if item.item.defense %}<td>{{item.item.defense}}</td>{% endif %}
+                        {% if item.item.energy %}<td>{{item.item.energy}}</td>{% endif %}
+                        {% if item.item.stamina %}<td>{{item.item.stamina}}</td>{% endif %}
+                        {% if item.item.health %}<td>{{item.item.health}}</td>{% endif %}
+                        {% if item.item.strike %}<td>{{item.item.strike}}</td>{% endif %}
+                        {% if item.item.dodge %}<td>{{item.item.dodge}}</td>{% endif %}
+                        {% if item.item.luck %}<td>{{item.item.luck}}</td>{% endif %}
+                        {% if item.item.has_quality %}<td>{{item.quality}}</td>{% endif %}
+                    </tr>
+                </table>
+                {% if item.activable %}
+                <form action="{{SITE_URL}}/enable-item" method="post" style="float:left;">
+                    {% csrf_token %}
+                    <div>
+                        <input type="hidden" name="id" value="{{item.id}}" />
+                        <input type="submit" class="button blue" value="Enable" />
+                    </div>
+                </form>
+                {% endif %}
+                <form action="{{SITE_URL}}/drop-item" method="post" style="float:left;">
+                    {% csrf_token %}
+                    <div>
+                        <input type="hidden" name="id" value="{{item.id}}" />
+                        <input type="submit" class="cancel-button red" value="Drop" style="margin-left:10px;" />	
+                    </div>
+                </form>
+            </div>
+            {% endfor %}
+            {% endif %}
+
+            <div class="clear"></div>
+        </div>
+
+        <div class="baseNomad section" id="section3">
+            <h2 class="baseTitles">Nomad shop has 9 items today</h2>
+        </div>	
+
+        <div class="baseStorage section" id="section4">
+            <h2 class="baseTitles">Storage: 10/11</h2>
+        </div>			
+    </div>	
+    {% endblock %}

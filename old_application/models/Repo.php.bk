@@ -1,0 +1,79 @@
+<?php
+class Repo {
+    private static $repo = null;
+    private $idCache = array();
+    private $db = null;
+    private function __construct() {
+        $this->db = get_instance()->db;
+        //register_shutdown_function(array($this, "save"));
+    }
+    public function newAccount() {
+        return $this->getByID('Account', $this->session->userdata('id'));
+    }
+    public function getByID($what, $id) {
+        if(!isset($idCache[$what])) {
+            $this->idCache[$what] = array();
+        }
+        if(!isset($idCache[$what][$id])) {
+            $this->db->select("*");
+            $this->db->where("id", $id);
+            if($what == 'Boss') {
+                $table = 'bosses';
+            } else {
+                $table = strtolower($what)."s";
+            }
+            $this->db->from($table);
+            $query = $this->db->get();
+            if(!$query) {
+                throw new Exception('No query for '.$what.' and id '.$id);
+            }
+            $result = $query->row_array();
+            //$name = ucfirst($what);
+            $obj = new $what();
+            foreach($result as $key => $val) {
+                $obj->{$key} = $val;
+            }
+            $this->idCache[$what][$id] = $obj;
+        }
+        return $this->idCache[$what][$id];
+    }
+    public function store($obj) {
+        $this->idCache[get_class($obj)][$obj->id] = $obj;
+    }
+    /*public function getByProp($what, $prop, $val) {
+        $this->db->select("*");
+        $this->db->where($prop, $id);
+        $this->db->from($what."s");
+        $query = $this->db->get();
+        $result = $query->row_array();
+        if(isset($this->idCache[$what][$result['id']])) {
+            return $this->idCache[$what][$result['id']];
+        }
+        return $result;
+    }*/
+    public static function getInstance() {
+        if(self::$repo == null) {
+            self::$repo =  new Repo();
+        }
+        return self::$repo;
+    }
+    private function save() {
+        foreach($this->idCache as $what => $arr) {
+            foreach($arr as $obj) {
+                $obj->save();
+            }
+        }
+    }
+    public function finish() {
+        $this->save();
+        $this->idCache = array();
+    }
+    private function saveObj($obj) {
+        $vars = get_object_vars($obj);
+        foreach($vars as $var => $val) {
+            $this->db->set($var, $val);
+        }
+        $this->db->replace(strtolower(get_class($obj)).'s');
+    }
+}
+?>

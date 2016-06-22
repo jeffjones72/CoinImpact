@@ -1,0 +1,32 @@
+<div class="box">
+    <div style="padding-top: 50px;">
+        <h2 class="page">Account Settings</h2>
+
+        <table class="list">
+            <tr>
+                <th>Name</th>
+                <td><?php echo $first_name . ' ' .$last_name; ?></td>
+            </tr>
+            <tr>
+                <th>Email</th>
+                <td><?php echo $email; ?></td>
+            </tr>
+            <tr>
+                <th>Joined</th>
+                <td><?php echo $date_joined; ?></td>
+            </tr>
+            <tr>
+                <th>Last login</th>
+                <td><?php echo $last_login; ?></td>
+            </tr>
+            <?php if($facebook_id != '') { ?>
+            <tr>
+                <th>Facebook ID</th>
+                <td><?php echo $facebook_id; ?></td>
+            </tr>
+            <?php } ?>
+        </table>
+
+        <a href="<?php base_url(); ?>password">change password</a>
+    </div>
+</div>

@@ -1,0 +1,1 @@
+pscp application\%1\*.php lrdjester@ftp.lordjester.com:ci2.lordjester.com/application/%1

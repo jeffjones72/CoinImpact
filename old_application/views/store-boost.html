@@ -1,0 +1,32 @@
+{# Copyright (C) 2012 Down Range Games, Inc #}
+{# 1084 Paloma Rd., Monterey, CA 93940 #}
+{% extends "base.html" %}
+{% block content %}
+
+<div id="sell">
+    <img class="item" src="{{MEDIA_URL}}/boosts/{{boost.id}}.png" alt="" />
+    <h2>{{boost.name}}</h2>
+    <p>{{item.description}}</p>
+
+    <div class="cost">
+        {% if boost.price %}<img src="{{SITE_URL}}/@@/statContainerCoins.png" height='30' width='26' alt='challenge coin'>{% endif %}
+        {% if boost.premium_price %}<img src="{{SITE_URL}}/@@/statContainerChalCoins.png" height='30' width='26' alt='challenge coin'>{% endif %}
+        <p>
+            {% if boost.price %}{{boost.price}}{% endif %}
+            {% if boost.premium_price %}{{boost.premium_price}}{% endif %}
+        </p>
+    </div>
+
+    <div class="clear"></div>
+
+    {% if boost.buyable %}
+    <form action="{{SITE_URL}}/purchase-boost" method="post">
+        {% csrf_token %}
+        <div>
+            <input type="hidden" name="id" value="{{boost.id}}" />
+            <input type="submit" class="button blue" value="Purchase" />
+        </div>
+    </form>
+    {% endif %}
+</div>
+{% endblock %}

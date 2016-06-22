@@ -1,0 +1,16 @@
+{# Copyright (C) 2012 Down Range Games, Inc #}
+{# 1084 Paloma Rd., Monterey, CA 93940 #}
+{% extends "base.html" %}
+{% block content %}
+<form action="{{SITE_URL}}/import" method="post" enctype="multipart/form-data">
+    <div>
+        {% csrf_token %}
+        <label for="file">XLS file</label><br />
+        <input type="file" name="file">
+        <input type="submit" class="button" name="submit" value="Upload" />
+    </div>
+</form>
+{% for error in request.session.import_errors %}
+{{error}}<br />
+{% endfor %}
+{% endblock %}

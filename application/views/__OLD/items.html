@@ -1,0 +1,146 @@
+{# Copyright (C) 2012 Down Range Games, Inc #}
+{# 1084 Paloma Rd., Monterey, CA 93940 #}
+{% extends "base.html" %}
+{% block content %}
+
+{{request.player.inventory_count}}/{{request.player.inventory_capacity}}
+
+{% if items %}
+<h2 class="page">{{items.count}} Items</h2>
+{% for item in items %}
+<div class="pad" style="float:left;">
+    <div style="height:5em;">
+        <h3>{{item.name}}</h3>
+        <p>{{item.description}}</p>
+    </div>
+    <img src="{{MEDIA_URL}}/items/{{item.id}}{% if item.has_quality %}-1{% endif %}s.png" alt="" />
+    <table class="info">
+        <tr>
+            {% if item.attack %}<th>attack</th>{% endif %}
+            {% if item.defense %}<th>defense</th>{% endif %}
+            {% if item.energy %}<th>energy</th>{% endif %}
+            {% if item.stamina %}<th>stamina</th>{% endif %}
+            {% if item.health %}<th>health</th>{% endif %}
+            {% if item.strike %}<th>strike</th>{% endif %}
+            {% if item.dodge %}<th>dodge</th>{% endif %}
+            {% if item.luck %}<th>luck</th>{% endif %}
+            {% if item.capacity %}<th>capacity</th>{% endif %}
+        </tr>
+        <tr>
+            {% if item.attack %}<td>{{item.attack}}</td>{% endif %}
+            {% if item.defense %}<td>{{item.defense}}</td>{% endif %}
+            {% if item.energy %}<td>{{item.energy}}</td>{% endif %}
+            {% if item.stamina %}<td>{{item.stamina}}</td>{% endif %}
+            {% if item.health %}<td>{{item.health}}</td>{% endif %}
+            {% if item.strike %}<td>{{item.strike}}</td>{% endif %}
+            {% if item.dodge %}<td>{{item.dodge}}</td>{% endif %}
+            {% if item.luck %}<td>{{item.luck}}</td>{% endif %}
+            {% if item.capacity %}<td>{{item.capacity}}</td>{% endif %}
+        </tr>
+    </table>
+    <p>Rarity: {{item.rarity}}</p>
+    {% if request.player.inventory_capacity > request.player.inventory_count %}
+    <form action="{{SITE_URL}}/collect-item" method="post">
+        {% csrf_token %}
+        <div>
+            <input type="hidden" name="id" value="{{item.id}}" />
+            <input type="submit" class="button blue" value="collect" />
+        </div>
+    </form>
+    {% endif %}
+</div>
+{% endfor %}
+<div class="clear"></div>
+{% endif %}
+
+{% if modifiers %}
+<h2 class="page">{{modifiers.count}} Modifiers</h2>
+{% for item in modifiers %}
+<div class="pad" style="float:left;">
+    <div style="height:5em;">
+        <h3>{{item.name}}</h3>
+        <p>{{item.description}}</p>
+    </div>
+    <img src="{{MEDIA_URL}}/modifiers/{{item.id}}{% if item.has_quality %}-1{% endif %}s.png" alt="" />
+    <table class="info">
+        <tr>
+            {% if item.attack %}<th>attack</th>{% endif %}
+            {% if item.defense %}<th>defense</th>{% endif %}
+            {% if item.energy %}<th>energy</th>{% endif %}
+            {% if item.stamina %}<th>stamina</th>{% endif %}
+            {% if item.health %}<th>health</th>{% endif %}
+            {% if item.strike %}<th>strike</th>{% endif %}
+            {% if item.dodge %}<th>dodge</th>{% endif %}
+            {% if item.luck %}<th>luck</th>{% endif %}
+            {% if item.capacity %}<th>capacity</th>{% endif %}
+        </tr>
+        <tr>
+            {% if item.attack %}<td>{{item.attack}}</td>{% endif %}
+            {% if item.defense %}<td>{{item.defense}}</td>{% endif %}
+            {% if item.energy %}<td>{{item.energy}}</td>{% endif %}
+            {% if item.stamina %}<td>{{item.stamina}}</td>{% endif %}
+            {% if item.health %}<td>{{item.health}}</td>{% endif %}
+            {% if item.strike %}<td>{{item.strike}}</td>{% endif %}
+            {% if item.dodge %}<td>{{item.dodge}}</td>{% endif %}
+            {% if item.luck %}<td>{{item.luck}}</td>{% endif %}
+            {% if item.capacity %}<td>{{item.capacity}}</td>{% endif %}
+        </tr>
+    </table>
+    {% if request.player.inventory_capacity > request.player.inventory_count %}
+    <form action="{{SITE_URL}}/collect-modifier" method="post">
+        {% csrf_token %}
+        <div>
+            <input type="hidden" name="id" value="{{item.id}}" />
+            <input type="submit" class="button blue" value="collect" />
+        </div>
+    </form>
+    {% endif %}
+</div>
+{% endfor %}
+<div class="clear"></div>
+{% endif %}
+
+{% if things %}
+<h2 class="page">{{things.count}} Things</h2>
+{% for thing in things %}
+<div class="pad" style="float:left;">
+    <div style="height:5em;">
+        <h3>{{thing.name}}</h3>
+        <p>{{thing.description}}</p>
+    </div>
+    <img src="{{MEDIA_URL}}/things/{{thing.id}}s.png" alt="" />
+    {% if request.player.inventory_capacity > request.player.inventory_count %}
+    <form action="{{SITE_URL}}/collect-thing" method="post">
+        <div>
+            {% csrf_token %}
+            <input type="hidden" name="id" value="{{thing.id}}" />
+            <input type="submit" class="button blue" value="Collect" />
+        </div>
+    </form>
+    {% endif %}
+</div>
+{% endfor %}
+<div class="clear"></div>
+{% endif %}
+
+{% if boosts %}
+<h2 class="page">{{boosts.count}} Boosts</h2>
+{% for boost in boosts %}
+<div class="pad" style="float:left;">
+    <div style="height:5em;">
+        <h3>{{boost.name}}</h3>
+        <p>{{boost.description}}</p>
+    </div>
+    <img src="{{MEDIA_URL}}/boosts/{{boost.id}}s.png" alt="" />
+    <form action="{{SITE_URL}}/collect-boost" method="post">
+        <div>
+            {% csrf_token %}
+            <input type="hidden" name="id" value="{{boost.id}}" />
+            <input type="submit" class="button blue" value="Collect" />
+        </div>
+    </form>
+</div>
+{% endfor %}
+<div class="clear"></div>
+{% endif %}
+{% endblock %}

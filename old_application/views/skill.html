@@ -1,0 +1,89 @@
+{# Copyright (C) 2012 Down Range Games, Inc #}
+{# 1084 Paloma Rd., Monterey, CA 93940 #}
+{% extends "base.html" %}
+{% block content %}
+<div class="box" style="margin-top:40px;">
+    <h2>Skill</h2>
+    {% if not confirm %}
+    <p>You have {{request.player.skill}} unused skill points.</p>
+    {% if skill.stamina_limit %}
+    <form action="{{SITE_URL}}/apply-skill" method="post">
+        <div>
+            <select name="points">
+                {% for p, v in skill.stamina_limit %}
+                <option value="{{p}}">{{v}} Stamina Limit ({{p}} Skill Points)</option>
+                {% endfor %}
+            </select>
+            <input type="hidden" name="stat" value="stamina-limit" />
+            <input class="button blue" type="submit" value="Apply" />
+        </div>
+    </form>
+    {% endif %}
+
+    {% if skill.energy_limit %}
+    <form action="{{SITE_URL}}/apply-skill" method="post">
+        <div>
+            <select name="points">
+                {% for p, v in skill.energy_limit %}
+                <option value="{{p}}">{{v}} Energy Limit ({{p}} Skill Points)</option>
+                {% endfor %}
+            </select>
+            <input type="hidden" name="stat" value="energy-limit" />
+            <input class="button blue" type="submit" value="Apply" />
+        </div>
+    </form>
+    {% endif %}
+
+    {% if skill.health_limit %}
+    <form action="{{SITE_URL}}/apply-skill" method="post">
+        <div>
+            <select name="points">
+                {% for p, v in skill.health_limit %}
+                <option value="{{p}}">{{v}} Health Limit ({{p}} Skill Points)</option>
+                {% endfor %}
+            </select>
+            <input type="hidden" name="stat" value="health-limit" />
+            <input class="button blue" type="submit" value="Apply" />
+        </div>
+    </form>
+    {% endif %}
+
+    {% if skill.attack %}
+    <form action="{{SITE_URL}}/apply-skill" method="post">
+        <div>
+            <select name="points">
+                {% for p, v in skill.attack %}
+                <option value="{{p}}">{{v}} Attack ({{p}} Skill Points)</option>
+                {% endfor %}
+            </select>
+            <input type="hidden" name="stat" value="attack" />
+            <input class="button blue" type="submit" value="Apply" />
+        </div>
+    </form>
+    {% endif %}
+
+    {% if skill.defense %}
+    <form action="{{SITE_URL}}/apply-skill" method="post">
+        <div>
+            <select name="points">
+                {% for p, v in skill.defense %}
+                <option value="{{p}}">{{v}} Defense ({{p}} Skill Points)</option>
+                {% endfor %}
+            </select>
+            <input type="hidden" name="stat" value="defense" />
+            <input class="button blue" type="submit" value="Apply" />
+        </div>
+    </form>
+    {% endif %}
+    {% else %}
+    Are you sure you want to spend {{request.session.skill_points}} Skill Points on {{request.session.skill_stat}} ?
+    <form action="{{SITE_URL}}/add-skill" method="post">
+        <div>
+            <input type="hidden" name="points" value="{{request.session.skill_points}}" />
+            <input type="hidden" name="stat" value="{{request.session.skill_stat}}" />
+            <input class="button blue" type="submit" value="Yes" />
+        </div>
+    </form>
+    {% endif %}
+</div>
+{% endblock %}

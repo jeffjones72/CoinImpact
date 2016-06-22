@@ -1,0 +1,83 @@
+{# Copyright (C) 2012 Down Range Games, Inc #}
+{# 1084 Paloma Rd., Monterey, CA 93940 #}
+{% extends "base.html" %}
+{% block content %}
+<div class="box" style="height: 410px;">
+    <img class="hideIcon" onclick="javascript:hide('location');" src="{{SITE_URL}}/@@/marker.png" alt="" height="25" width="25"/>
+
+    <div class="locationTitleTab" onclick="javascript:show('location');">Map Info</div>
+    <div id="map">
+        <img src="{{SITE_URL}}/@@/map_color.jpg" alt="" />
+        {% for place in player_places %}
+        <div class="mapPosition" id="mapPos{{place.place.id}}">
+            <div class="mapTravelBtn">
+                <div class="mapTravelBtnHighlight"></div>
+                <div class="mapTravelBtnIcon" onclick="javascript:toggleOne('map{{place.place.id}}', 'mapInfo');"></div>
+            </div>
+            <div class="mapInfo leftarrowdiv" id="map{{place.place.id}}">
+                <p>{{place.place.name}}</p>
+                <p>Travel cost: {{place.required_energy}} energy</p>
+                <p>Level: 1</p>
+
+                <div class="mapProgressBg">
+                    <div class="mapProgress" style="width:{{place.progress}}%;"></div>
+                    <div class="exploreProgressText">{{place.progress}}% explored</div>
+                </div>
+                {% if not place = request.player.location and request.player.energy >= place.required_energy %}
+                <form action="{{SITE_URL}}/select-place" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="id" value="{{place.id}}" />
+                    <input type="submit" class="mapTravel blue" value="Travel" />
+                </form>
+                {% else %}
+                <input type="button" class="mapTravel gray" value="Travel" />
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+
+
+        <div class="mapNavigation">
+            <!--
+            <div class="mapPrevious">
+                    <a href="">Previous area</a>
+            </div>
+            
+            <div class="mapNext">
+                    <a href="">Next Area</a>
+            </div>
+            -->
+            <div class="mapCenter">
+                <a href="">{{request.player.location.place.name}}</a>
+            </div>
+        </div>
+    </div>
+    <div id="location" class="mapLocation">
+        <p class="bold">{{request.player.location.place.description}}</p>
+    </div>
+</div>
+<!--
+<h2 class="page">Map of {{request.player.location.place.zone}}</h2>
+<div class="box">
+<img id="img" src="{{SITE_URL}}/explore/image" alt="" onmousemove="move(this)" />
+
+<table class="list">
+{% for place in places %}
+        <tr>
+                <td>{{place.name}}</td>
+        </tr>
+{% endfor %}
+</table>
+
+{% for place in player_places %}
+        {% if not place = request.player.location and request.player.energy >= place.required_energy %}
+        <form action="{{SITE_URL}}/select-place" method="post">
+                {% csrf_token %}
+                <input type="hidden" name="id" value="{{place.id}}" />
+                <input type="submit" class="button blue" value="{{place.place.name}} ({{place.required_energy}} Energy)" />
+        </form>
+        {% endif %}
+{% endfor %}
+</div>
+-->
+{% endblock %}

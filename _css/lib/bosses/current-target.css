@@ -1,0 +1,44 @@
+/*
+    Handles the styles for the current target dialog on /bosses.
+*/
+
+/*
+    sq10 | CI:B0105
+
+    Prettify the boss combat log.
+*/
+
+#current-target {
+    display: none;
+    margin: 30px 0px 0px 0px;
+    padding: 0px 8px;
+    position: absolute;
+    width: 674px;
+    height: 810px;
+    overflow: auto;
+    background-color: #F4F7F9;
+    border: 4px solid #DEAE23;
+}
+.bossCombatInfo .logItem {
+    width: 100%;
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    overflow: hidden;
+    border-bottom: 1px dotted #BFA88D;
+    font-size: 12px;
+    padding: 3px;
+    word-wrap: break-word;
+}
+.bossCombatInfo .logItem .num {
+    font-weight: bold;
+}
+.bossCombatInfo .logItem .playerName {
+    color: #2B1D14;
+    font-weight: bold;
+}
+.bossCombatInfo .logItem .damageDealt, .bossCombatInfo .logItem .damageTaken {
+    color: #6B2222;
+}
+.bossCombatInfo .logItem .xpAwarded {
+    color: #104350;
+}

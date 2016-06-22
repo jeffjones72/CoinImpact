@@ -1,0 +1,106 @@
+{# Copyright (C) 2012 Down Range Games, Inc #}
+{# 1084 Paloma Rd., Monterey, CA 93940 #}
+{% extends "base.html" %}
+{% block content %}
+
+<div class="box team" style="height: 510px;">
+
+    <div class="yellowSectionBtn" onclick="javascript:showonlyone('section2')" style="margin-right:10px;">
+        TEAM
+    </div>
+    <div class="greenSectionBtn" onclick="javascript:showonlyone('section1');">
+        SQUAD
+    </div>
+
+    <div class="teamSquadSection" name="section" id="section1">
+        <h2>Your Squad</h2>
+        <div class="teamNav">
+            <form class="filterMenu">
+                <div class="filterCenter">
+                    Sort by:
+                    <select>
+                        <option value="">Level</option>
+                    </select>
+                </div>
+            </form>
+        </div>
+        <div>
+            <div class="squadMembersBox">
+                <div class="squadMemberName">
+                    lol_very_long_player_name_here_lol
+                </div>
+                <div class="squadMemberName">
+                    Lvl: 13
+                </div>
+                <div class="squadAtk">
+                    <b>Attack:</b>
+                    <div class="squadStatNumbers">
+                        0
+                    </div>
+                </div>
+                <div class="squadDef">
+                    <b>Defense:</b>
+                    <div class="squadStatNumbers">
+                        0
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>          
+
+    <div class="teamSection" name="section" id="section2">			
+        <h2>Your Team</h2>
+        <div class="teamNav">
+            <form class="filterMenu">
+                <div class="filterSort">
+                    Sort by:
+                    <select>
+                        <option value="">Level</option>
+                    </select>
+                </div>
+            </form>
+            <form class="filterMenu" action="{{SITE_URL}}/add-friend" method="post">
+                <div class="filterAddFriend">
+                    Add Friend:
+                    {% csrf_token %}
+                    <input class="mail" type="text" name="email" value="" placeholder="E-Mail Address" />
+                    <input class="button blue" type="submit" value="Add Friend" />
+                </div>
+            </form>
+        </div>
+        <div>
+            {% for player in team %}
+            <div class="teamMembersBox">
+                <div>
+                    <div id="">
+                        <p><a href="" class="star"></a></p>
+                    </div>
+                    <form>
+                        <input class="teamBtnGreen" value="Add to Squad"></input>
+                    </form>
+                    <form action="{{SITE_URL}}/remove-friend" method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="id" value="{{player.id}}" />
+                        <input type="submit" class="teamBtnRed" value="Remove From Squad"></input>
+                    </form>
+                </div>
+                <div style="padding-top:26px;">
+                    <div class="squadMemberName" style="clear:both;">
+                        {{player.first_name}}&nbsp;{{player.last_name}}
+                    </div>
+                    <div class="squadMemberName">
+                        Lvl: {{player.level}}
+                    </div>
+                    <form>
+                        <a class="teamBtnBlue">Send Gift</a>
+                        <a class="teamBtnBlue" href="{{SITE_URL}}/players/{{player.id}}">Profile</a>
+                    </form>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>	
+
+</div>
+
+{% endblock %}

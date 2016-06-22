@@ -1,0 +1,373 @@
+{# Copyright (C) 2012 Down Range Games, Inc #}
+{# 1084 Paloma Rd., Monterey, CA 93940 #}
+{% extends "base.html" %}
+{% block content %}
+<div style="height:750px;">
+    <div id="popStore" class="popUp">
+        <div class="closeBtn closeStorePos" onclick="javascript:toggle('popStore')">
+        </div>
+        <div id="purchaseItem"></div>
+    </div>
+
+    <div class="tanSectionBtn storeBtn" onclick="javascript:showonlyone('section3');" style="margin-right:15px;">
+        ITEMS
+    </div>
+    <div class="yellowSectionBtn storeBtn" onclick="javascript:showonlyone('section2');">
+        PREMIUM ITEMS
+    </div>
+    <div class="blueSectionBtn storeBtn" onclick="javascript:showonlyone('section1');">
+        WEAPONS CACHE
+    </div>
+
+    <div class="storeWeaponCashebox section" id="section1">
+        <div class="dealsBox">
+            <div class="infoBox">
+                <input style="float: right;" class="blueBtnS blue" type="submit" name="submit" value="BUY">
+                <h4 class="infoText">1 crate for 99 Challenge Coins</h4>
+            </div>
+            <div class="infoBox">
+                <input style="float: right;" class="blueBtnS blue" type="submit" name="submit" value="BUY">
+                <h4 class="infoText">3 crate for 290 Challenge Coins</h4>
+            </div>
+            <div class="infoBox">
+                <input style="float: right;" class="blueBtnS blue" type="submit" name="submit" value="BUY">
+                <h4 class="infoText">5 crate for 390 Challenge Coins</h4>
+                <p class="infoSubText">Save 22% - *sale ends 1300 Sat.</p>
+            </div>
+        </div>
+        <input class="buyCoinBtn" style="margin-top: 68px;" type="submit" name="submit" value="Buy More">
+        <div class="cacheColumn">
+            <div class="cacheBox">
+                <img id="cacheSelect1" src="{{SITE_URL}}/@@/cache_WW2.jpg" width="220" height="124" style="position:absolute;" alt="" />
+                <input class="storeBuyCache" type="submit" name="submit" value="BUY">
+            </div>
+            <div class="cacheBox">	
+                <img id="cacheSelect2" src="{{SITE_URL}}/@@/cache_WW2.jpg" width="220" height="124" style="position:absolute;" alt="" />
+                <input class="storeBuyCache" type="submit" name="submit" value="BUY">
+                <div class="unselectedCache"></div>
+            </div>
+            <div class="cacheBox">
+                <img id="cacheSelect3" src="{{SITE_URL}}/@@/cache_WW2.jpg" width="220" height="124" style="position:absolute;" alt="" />
+                <input class="storeBuyCache" type="submit" name="submit" value="BUY">
+                <div class="unselectedCache"></div>
+            </div>
+            <div class="selectedCache">
+                <img src="{{SITE_URL}}/@@/selectedCache.png" alt="" >
+            </div>
+        </div>
+
+        {% for cache in caches %}
+        <div id="cache{{cache.id}}" class="cacheWeaponSection">
+            {% for item in cache.possible_items %}
+            <img class="cacheItem" src="{{MEDIA_URL}}/items/{{item.id}}{% if item.has_quality %}-4{% endif %}.png" height="85" alt="" />
+            {% endfor %}
+
+            {% for thing in cache.possible_things %}
+            <img class="cacheItem" src="{{MEDIA_URL}}/things/{{thing.id}}.png" height="85" alt="" >
+            {% endfor %}
+
+            {% for boost in cache.possible_boosts %}
+            <img class="cacheItem" src="{{MEDIA_URL}}/boosts/{{boost.id}}.png" height="85" alt="" >
+            {% endfor %}
+
+            {% for modifier in cache.possible_modifiers %}
+            <img class="cacheItem" src="{{MEDIA_URL}}/modifiers/{{modifier.id}}{% if modifier.has_quality %}-4{% endif %}.png" height="85" alt="" >
+            {% endfor %}
+            <div class="clear"></div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="storePremiumBox section" id="section2">
+        <img src="{{SITE_URL}}/@@/premiumItemsBg.png" alt="">
+        <div class="premiumSalesSection">
+            <div class="premiumPortraitSection">
+                <h2 class="storeTitle">Premium Items For Sale</h2>
+                <img style="padding-top: 14px;" src="{{SITE_URL}}/@@/premiumPortrait.png" alt="">
+            </div>
+            <div class="premiumInfoSection">
+                <h2 class="storeTitle">You Have <span class="redText">{{request.player.premium_balance}}</span> Premium Coins</h2>
+                <div class="premiumTextArea">
+                    <p class="premiumInfoText">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse vestibulum feugiat ullamcorper.</p>
+                </div>
+
+                <div class="premiumSaleBox">
+                    <input style="float: right;" class="blueBtnS blue" type="submit" name="submit" value="BUY">
+                    <h4 class="infoText">+20 Stamina</h4>
+                </div>
+
+                <div class="premiumSaleBox">
+                    <input style="float: right;" class="blueBtnS blue" type="submit" name="submit" value="BUY">
+                    <h4 class="infoText">Full refill of your Energy</h4>
+                </div>
+
+                <div class="premiumSaleBox">
+                    <input style="float: right;" class="blueBtnS blue" type="submit" name="submit" value="BUY">
+                    <h4 class="infoText">Full refill of your Health</h4>
+                </div>
+                <div class="premiumSaleBox">
+                    <input style="float: right;" class="blueBtnS blue" type="submit" name="submit" value="BUY">
+                    <h4 class="infoText">Get a 20% bonus for all Premium Coin purchases.</h4>
+                    <p class="infoSubText">*sale ends 1300 Sat.</p>
+                </div>
+                <div class="clear"></div>
+
+
+                <div class="premiumItemBox">
+                    {% if items %}
+                    <h2 class="storeTitle">Premium Items</h2>
+                    {% for item in items %}
+                    {% if item.premium_price %}
+                    <div class="storeSlot storeItem">
+                        <span class="storeSlotTitle">{{item.name}}</span>
+                        <div class="storePrice">
+                            <img src="{{SITE_URL}}/@@/statContainerChalCoins.png" height='30' width='26' alt='challenge coin'>
+                            <span>
+                                {% if item.price %}{{item.price}}{% endif %}
+                                {% if item.premium_price %}{{item.premium_price}}{% endif %}
+                            </span>
+                        </div>
+                        <div class="storePurchase" onclick="javascript:loadItem('{{item.id}}')">
+                            <input class="items blue" value="BUY">
+                        </div>
+                        <img src="{{MEDIA_URL}}/items/{{item.id}}{% if item.has_quality %}-1{% endif %}.png" height="85" alt="">
+                        <!--
+                        <table class="info">
+                                <tr>
+                                        {% if item.attack %}<th>ATK</th>{% endif %}
+                                        {% if item.defense %}<th>DEF</th>{% endif %}
+                                        {% if item.energy %}<th>EN</th>{% endif %}
+                                        {% if item.stamina %}<th>STA</th>{% endif %}
+                                        {% if item.health %}<th>HP</th>{% endif %}
+                                        {% if item.strike %}<th>CS</th>{% endif %}
+                                        {% if item.dodge %}<th>dodge</th>{% endif %}
+                                        {% if item.luck %}<th>luck</th>{% endif %}
+                                        {% if item.capacity %}<th>Cap</th>{% endif %}
+                                </tr>
+                                <tr>
+                                        {% if item.attack %}<td>{{item.attack}}</td>{% endif %}
+                                        {% if item.defense %}<td>{{item.defense}}</td>{% endif %}
+                                        {% if item.energy %}<td>{{item.energy}}</td>{% endif %}
+                                        {% if item.stamina %}<td>{{item.stamina}}</td>{% endif %}
+                                        {% if item.health %}<td>{{item.health}}</td>{% endif %}
+                                        {% if item.strike %}<td>{{item.strike}}</td>{% endif %}
+                                        {% if item.dodge %}<td>{{item.dodge}}</td>{% endif %}
+                                        {% if item.luck %}<td>{{item.luck}}</td>{% endif %}
+                                        {% if item.capacity %}<td>{{item.capacity}}</td>{% endif %}
+                                </tr>
+                        </table>
+                        -->
+                    </div>
+                    {% endif %}
+                    {% endfor %}
+                    <div class="clear"></div>
+                    {% endif %}
+
+
+                    {% if modifiers %}
+                    {% for modifier in modifiers %}
+                    {% if modifier.premium_price %}
+                    <div class="storeSlot storeModifier">
+                        <span class="storeSlotTitle">{{modifier.name}}</span>
+                        <div class="storePrice">
+                            <img src="{{SITE_URL}}/@@/statContainerChalCoins.png" height='30' width='26' alt='challenge coin'>
+                            <span>
+                                {% if modifier.price %}{{modifier.price}}{% endif %}
+                                {% if modifier.premium_price %}{{modifier.premium_price}}{% endif %}
+                            </span>
+                        </div>
+                        <div class="storePurchase">
+                            <input class="modifiers blue" value="BUY" onclick="javascript:loadModifier('{{modifier.id}}')">
+                        </div>
+                        <img src="{{MEDIA_URL}}/modifiers/{{modifier.id}}{% if modifier.has_quality %}-1{% endif %}.png" height="85" alt="">
+                    </div>
+                    {% endif %}
+                    {% endfor %}
+                    <div class="clear"></div>
+                    {% endif %}
+
+
+                    {% if things %}
+                    {% for thing in things %}
+                    {% if thing.premium_price %}
+                    <div class="storeSlot storeThings">
+                        <span class="storeSlotTitle">{{thing.name}}</span>
+                        <div class="storePrice">
+                            <img src="{{SITE_URL}}/@@/statContainerChalCoins.png" height='30' width='26' alt='challenge coin'>
+                            <span>
+                                {% if thing.price %}{{thing.price}}{% endif %}
+                                {% if thing.premium_price %}{{thing.premium_price}}{% endif %}
+                            </span>
+                        </div>
+                        <div class="storePurchase">
+                            <input class="things blue" value="BUY" onclick="javascript:loadThing('{{thing.id}}')">
+                        </div>
+                        <img src="{{MEDIA_URL}}/things/{{thing.id}}.png" height="85" alt="">
+                    </div>
+                    {% endif %}
+                    {% endfor %}
+                    <div class="clear"></div>
+                    {% endif %}
+
+                    {% if boosts %}
+                    {% for boost in boosts %}
+                    {% if boost.premium_price %}
+                    <div class="storeSlot storeBoosts">
+                        <span class="storeSlotTitle">{{boost.name}}</span>
+                        <div class="storePrice">
+                            <img class="item" src="{{SITE_URL}}/@@/statContainerChalCoins.png" height='30' width='26' alt='challenge coin'>
+                            <span>
+                                {% if boost.price %}{{boost.price}}{% endif %}
+                                {% if boost.premium_price %}{{boost.premium_price}}{% endif %}
+                            </span>
+                        </div>
+                        <div class="storePurchase">
+                            <input class="boosts blue" value="BUY" onclick="javascript:loadBoosts('{{boost.id}}')">
+                        </div>
+                        <img src="{{MEDIA_URL}}/boosts/{{boost.id}}.png" height="85" alt="">
+                    </div>
+                    {% endif %}
+                    {% endfor %}
+                    <div class="clear"></div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="storeItemBox section" id="section3">
+        <img src="{{SITE_URL}}/@@/premiumItemsBg.png" alt="">
+        <div class="premiumSalesSection">
+            <div class="premiumPortraitSection">
+                <h2 class="storeTitle">Common Items For Sale</h2>
+            </div>
+            <div>
+                <h2 class="storeTitle">You Have <span class="redText">{{request.player.balance}}</span> Coins</h2>
+            </div>
+            <div class="commonItemBox">
+                {% if items %}
+                <h2 class="storeTitle">Items</h2>
+                {% for item in items %}
+                {% if item.price %}
+                <div class="storeSlot storeItem">
+                    <span class="storeSlotTitle">{{item.name}}</span>
+                    <div class="storePrice">
+                        <img src="{{SITE_URL}}/@@/statContainerCoins.png" height='30' width='26' alt='challenge coin'>
+                        <span>
+                            {% if item.price %}{{item.price}}{% endif %}
+                            {% if item.premium_price %}{{item.premium_price}}{% endif %}
+                        </span>
+                    </div>
+                    <div class="storePurchase" onclick="javascript:loadItem('{{item.id}}')">
+                        <input class="items blue" value="BUY" >
+                    </div>
+                    <img src="{{MEDIA_URL}}/items/{{item.id}}{% if item.has_quality %}-1{% endif %}.png" height="85" alt="">
+                    <!--
+                    <table class="info">
+                            <tr>
+                                    {% if item.attack %}<th>ATK</th>{% endif %}
+                                    {% if item.defense %}<th>DEF</th>{% endif %}
+                                    {% if item.energy %}<th>EN</th>{% endif %}
+                                    {% if item.stamina %}<th>STA</th>{% endif %}
+                                    {% if item.health %}<th>HP</th>{% endif %}
+                                    {% if item.strike %}<th>CS</th>{% endif %}
+                                    {% if item.dodge %}<th>dodge</th>{% endif %}
+                                    {% if item.luck %}<th>luck</th>{% endif %}
+                                    {% if item.capacity %}<th>Cap</th>{% endif %}
+                            </tr>
+                            <tr>
+                                    {% if item.attack %}<td>{{item.attack}}</td>{% endif %}
+                                    {% if item.defense %}<td>{{item.defense}}</td>{% endif %}
+                                    {% if item.energy %}<td>{{item.energy}}</td>{% endif %}
+                                    {% if item.stamina %}<td>{{item.stamina}}</td>{% endif %}
+                                    {% if item.health %}<td>{{item.health}}</td>{% endif %}
+                                    {% if item.strike %}<td>{{item.strike}}</td>{% endif %}
+                                    {% if item.dodge %}<td>{{item.dodge}}</td>{% endif %}
+                                    {% if item.luck %}<td>{{item.luck}}</td>{% endif %}
+                                    {% if item.capacity %}<td>{{item.capacity}}</td>{% endif %}
+                            </tr>
+                    </table>
+                    -->
+                </div>
+                {% endif %}
+                {% endfor %}
+                <div class="clear"></div>
+                {% endif %}
+
+
+                {% if modifiers %}
+                <h2 class="storeTitle">Modifiers</h2>
+                {% for modifier in modifiers %}
+                {% if modifier.price %}
+                <div class="storeSlot storeModifier">
+                    <span class="storeSlotTitle">{{modifier.name}}</span>
+                    <div class="storePrice">
+                        <img src="{{SITE_URL}}/@@/statContainerCoins.png" height='30' width='26' alt='challenge coin'>
+                        <span>
+                            {% if modifier.price %}{{modifier.price}}{% endif %}
+                            {% if modifier.premium_price %}{{modifier.premium_price}}{% endif %}
+                        </span>
+                    </div>
+                    <div class="storePurchase">
+                        <input class="modifiers blue" value="BUY" onclick="javascript:loadModifier('{{modifier.id}}')">
+                    </div>
+                    <img src="{{MEDIA_URL}}/modifiers/{{modifier.id}}{% if modifier.has_quality %}-1{% endif %}.png" height="85" alt="" />
+                </div>
+                {% endif %}
+                {% endfor %}
+                <div class="clear"></div>
+                {% endif %}
+
+
+                {% if things %}
+                <h2 class="storeTitle">Things</h2>
+                {% for thing in things %}
+                {% if thing.price %}
+                <div class="storeSlot storeThings">
+                    <span class="storeSlotTitle">{{thing.name}}</span>
+                    <div class="storePrice">
+                        <img src="{{SITE_URL}}/@@/statContainerCoins.png" height='30' width='26' alt='challenge coin'>
+                        <span>
+                            {% if thing.price %}{{thing.price}}{% endif %}
+                            {% if thing.premium_price %}{{thing.premium_price}}{% endif %}
+                        </span>
+                    </div>
+                    <div class="storePurchase">
+                        <input class="things blue" value="BUY" onclick="javascript:loadThing('{{thing.id}}')">
+                    </div>
+                    <img src="{{MEDIA_URL}}/things/{{thing.id}}.png" height="85" alt="">
+                </div>
+                {% endif %}
+                {% endfor %}
+                <div class="clear"></div>
+                {% endif %}
+
+                {% if boosts %}
+                <h2 class="storeTitle">Boosts</h2>
+                {% for boost in boosts %}
+                {% if boost.price %}
+                <div class="storeSlot storeBoosts">
+                    <span class="storeSlotTitle">{{boost.name}}</span>
+                    <div class="storePrice">
+                        <img src="{{SITE_URL}}/@@/statContainerCoins.png" height='30' width='26' alt='challenge coin'>
+                        <span>
+                            {% if boost.price %}{{boost.price}}{% endif %}
+                            {% if boost.premium_price %}{{boost.premium_price}}{% endif %}
+                        </span>
+                    </div>
+                    <div class="storePurchase">
+                        <input class="boosts blue" value="BUY" onclick="javascript:loadBoosts('{{boost.id}}')">
+                    </div>
+                    <img src="{{MEDIA_URL}}/boosts/{{boost.id}}.png" height="85" alt="" />
+                </div>
+                {% endif %}
+                {% endfor %}
+                <div class="clear"></div>
+                {% endif %}
+            </div>
+        </div>
+        <div class="clear"></div>
+    </div>
+</div>
+
+{% endblock %}

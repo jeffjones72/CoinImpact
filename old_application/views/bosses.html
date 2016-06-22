@@ -1,0 +1,438 @@
+{# Copyright (C) 2012 Down Range Games, Inc #}
+{# 1084 Paloma Rd., Monterey, CA 93940 #}
+{% extends "base.html" %}
+{% block content %}
+
+
+<div class="box" style="height: 800px;">
+
+    <div class="tanSectionBtn" style="margin-right: 12px;" onclick="javascript:showonlyone('section5')">
+        COLLECT
+    </div>
+    <div class="yellowSectionBtn" onclick="javascript:showonlyone('section4')">
+        CURRENT TARGET
+    </div>
+    <div class="blueSectionBtn" onclick="javascript:showonlyone('section3')">
+        ACTIVE
+    </div>
+    <div class="brownSectionBtn" onclick="javascript:showonlyone('section2');">
+        SEARCH
+    </div>
+    <div class="orangeSectionBtn" onclick="javascript:showonlyone('section1');">
+        LOCATE
+    </div>
+
+    <div class="bossLocateBox section" id="section1">
+        <div class="bossTopBar">	
+            <h2 class="bossTitle">Locate Bosses</h2>
+        </div>
+        <form class="bossFilterMenu">
+            <div class="bossLocateFilter">
+                Boss type:
+                <select>
+                    <option value="">Human</option>
+                    <option value="">Creature</option>
+                    <option value="">Vehicle</option>
+                </select>
+            </div>
+            <div class="bossLocateFilter">
+                Locating cost:
+                <select>
+                    <option value="">Low cost only</option>
+                    <option value="">High cost only</option>
+                </select>
+            </div>
+            <div class="bossLocateFilter">
+                Filter by difficulty:
+                <select>
+                    <option value="">Show only level 1</option>
+                    <option value="">Only levels 1 & 2</option>
+                    <option value="">Show only level 2</option>
+                    <option value="">Only levels 2 & 3</option>
+                    <option value="">Show only level 3</option>
+                    <option value="">Only levels 3 & 4</option>
+                    <option value="">Show only level 4</option>
+                    <option value="">Only levels 4 & 5</option>
+                    <option value="">Show only level 5</option>
+                </select>
+            </div>
+            <div class="bossLocateFilter">
+                Sort By:
+                <select>
+                    <option value="">Cost - acending</option>
+                    <option value="">Cost - decending</option>
+                </select>
+            </div>
+            <div>
+                <input type="submit" class="searchButton" value="Search" />
+            </div>
+        </form>
+        <div style="margin:100px 0px 0px 10px;">	
+            <h2 class="bossTitle">XX Bosses Have Been Located:</h2>
+        </div>
+        <div>
+            {% for boss in bosses %}
+            <div class="bossActiveSlot">
+                <div class="bossActiveImageSlot">
+                    <img src="/data/bosses/{{boss.id}}.png" width="400" alt="" />
+                </div>
+                <div class="bossInfoBox">
+                    <p class="bossInfo">RandomPlayer's</p>
+                    <h2 class="bossTitle">{{boss.name}}</h2>
+                    <p class="bossInfo">Time: <span class="redText">-10:55:32</span></p>
+                    <p class="bossInfo">33/500<span style="float:right;"><a href="">more info</a></span></p>
+                </div>
+                <div class="bossActiveSlotBar">
+                    <div class="bossActiveHealthBar">
+                        <div class="combatantHealth" style="width:{{combatant.health_percent}}%"></div>
+                        <div class="combatantHealthText"><strong>Health</strong> - {{boss.health}}/{{boss.health}}</div>
+                    </div>
+                    <div>
+                        <div class="bossLevel">
+                            {% for i in combatant.skulls%}
+                            <img class="skull" src="{{SITE_URL}}/@@/goldSkull.png" height="28" width="28" alt="">
+                            {%endfor%}
+                        </div>
+                        <img class="bossInfoBtn" src="{{SITE_URL}}/@@/icoInfo.png" width="18" alt="">
+                    </div>
+                    <form action="" method="post">
+                        <div>
+                            <input type="hidden" name="id" value="{{boss.id}}" />
+                            <input type="submit" class="bossButton" value="Locate" />
+                        </div>
+                    </form>	
+                </div>
+                <div class="clear"></div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>  
+
+    <div class="bossSearchBox section" id="section2">
+        <div class="bossTopBar">	
+            <h2 class="bossTitle">Search Bosses</h2>
+        </div>
+        <form class="bossFilterMenu">
+            <div class="bossLocateFilter">
+                Search by Boss name:
+                <input type="text" name="BossName">
+            </div>
+            <div class="bossLocateFilter">
+                Boss difficulty level:
+                <select>
+                    <option value="">Show only level 1</option>
+                    <option value="">Only levels 1 & 2</option>
+                    <option value="">Show only level 2</option>
+                    <option value="">Only levels 2 & 3</option>
+                    <option value="">Show only level 3</option>
+                    <option value="">Only levels 3 & 4</option>
+                    <option value="">Show only level 4</option>
+                    <option value="">Only levels 4 & 5</option>
+                    <option value="">Show only level 5</option>
+                </select>
+            </div>
+            <div class="bossLocateFilter">
+                Boss Size:
+                <select>
+                    <option value="">Less than 500 players</option>
+                </select>
+            </div>
+            <div class="bossLocateFilter">
+                Sort By:
+                <select>
+                    <option value="">Ending soonest</option>
+                </select>
+            </div>
+            <div>
+                <input type="submit" class="searchButton" value="Search" />
+            </div>
+        </form>
+        <div style="margin:100px 0px 0px 10px;">	
+            <h2 class="bossTitle">Your Search Yielded XX Bosses:</h2>
+        </div>
+        {% for boss in bosses %}
+        <div class="bossActiveSlot">
+            <div class="bossActiveImageSlot">
+                <img src="/data/bosses/{{boss.id}}.png" width="400" alt="" />
+            </div>
+            <div class="bossInfoBox">
+                <p class="bossInfo">RandomPlayer's</p>
+                <h2 class="bossTitle">{{boss.name}}</h2>
+                <p class="bossInfo">Time: <span class="redText">-10:55:32</span></p>
+                <p class="bossInfo">33/500<span style="float:right;"><a href="">more info</a></span></p>
+            </div>
+            <div class="bossActiveSlotBar">
+                <div class="bossActiveHealthBar">
+                    <div class="combatantHealth" style="width:{{combatant.health_percent}}%"></div>
+                    <div class="combatantHealthText"><strong>Health</strong> - {{boss.health}}/{{boss.health}}</div>
+                </div>
+                <div>
+                    <div class="bossLevel">
+                        {% for i in combatant.skulls%}
+                        <img class="skull" src="{{SITE_URL}}/@@/goldSkull.png" height="28" width="28" alt="">
+                        {%endfor%}
+                    </div>
+                    <img class="bossInfoBtn" src="{{SITE_URL}}/@@/icoInfo.png" width="18" alt="">
+                </div>
+
+                {% if boss.engageable %}
+                <form action="/engage-boss" method="post">
+                    <div>
+                        <input type="hidden" name="id" value="{{boss.id}}" />
+                        <input type="submit" class="bossButton" value="Engage" />
+                    </div>
+                </form>
+                {% endif %}	
+            </div>
+            <div class="clear"></div>
+        </div>
+        {% endfor %}
+    </div> 	
+
+    <div class="bossActiveBox section" id="section3">	
+        <form class="filterMenu">
+            <div class="filterCenter">
+                Sort By:
+                <select>
+                    <option value="">Damage (acending)</option>
+                    <option value="">Damage (decending)</option>
+                </select>
+            </div>
+        </form>
+        {% for boss in bosses %}
+        <div class="bossActiveSlot">
+            <div class="bossActiveImageSlot">
+                <img src="/data/bosses/{{boss.id}}.png" width="400" alt="" />
+            </div>
+            <div class="bossInfoBox">
+                <p class="bossInfo">RandomPlayer's</p>
+                <h2 class="bossTitle">{{boss.name}}</h2>
+                <p class="bossInfo">Time: <span class="redText">-10:55:32</span></p>
+                <p class="bossInfo">33/500<span style="float:right;"><a href="">more info</a></span></p>
+                <!--
+                <p>{{boss.description}}</p>
+                Health: {{boss.health}}
+
+                {% if not boss.engageable %}
+                        {% if boss.required_places.all %}
+                                <p>Required places:
+                                {% for place in boss.required_places.all %}
+                                        {{place.name}}
+                                {% endfor %}
+                                </p>
+                        {% endif %}
+                        {% if boss.required_items.all %}
+                                <p>Required items:
+                                {% for item in boss.required_items.all %}
+                                        {{item.name}}
+                                {% endfor %}
+                                </p>
+                        {% endif %}
+                        {% if boss.required_missions.all %}
+                                <p>Required missions:
+                                {% for mission in boss.required_missions.all %}
+                                        {{mission.name}}
+                                {% endfor %}
+                                </p>
+                        {% endif %}
+                {% endif %}
+                -->
+            </div>
+            <div class="bossActiveSlotBar">
+                <div class="bossActiveHealthBar">
+                    <div class="combatantHealth" style="width:{{combatant.health_percent}}%"></div>
+                    <div class="combatantHealthText"><strong>Health</strong> - {{boss.health}}/{{boss.health}}</div>
+                </div>
+                <div>
+                    <div class="bossLevel">
+                        {% for i in combatant.skulls%}
+                        <img class="skull" src="{{SITE_URL}}/@@/goldSkull.png" height="28" width="28" alt="">
+                        {%endfor%}
+                    </div>
+                    <img class="bossInfoBtn" src="{{SITE_URL}}/@@/icoInfo.png" width="18" alt="">
+                </div>
+                {% if boss.engageable %}
+                <form action="/engage-boss" method="post">
+                    <div>
+                        <input type="hidden" name="id" value="{{boss.id}}" />
+                        <input type="submit" class="bossButton" value="Engage" />
+                    </div>
+                </form>
+                {% endif %}	
+            </div>
+            <div class="clear"></div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="bossCurrentBox section" id="section4">
+        <div class="bossTopBarTarget">	
+            <a href="" style="float:left;margin-right:7px;">John's</a>
+            <h2 class="bossTitle">Boss Name</h2>
+            <div class="bossTopLevelBar">
+                <div class="bossLevel">
+                    {% for i in combatant.skulls%}
+                    <img class="skull" src="{{SITE_URL}}/@@/goldSkull.png" height="28" width="28" alt="">
+                    {%endfor%}
+                </div>
+                <img class="bossInfoBtn" src="{{SITE_URL}}/@@/icoInfo.png" width="18" alt="">
+            </div>
+        </div>
+        <div>
+            <div class="currentBoosts">
+                <div class="currentBoostsTitles">
+                    Boosts:
+                </div>
+                <div class="statBoosts" style="float:right;">
+                    <ul>
+                        <li></li>
+                        <li></li>
+                        <li></li>
+                        <li></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="bossCurrentInfo">
+                <div class="bossCurrentPlayers">
+                    <div class="bossPlayerCount">
+                        33/500
+                    </div>
+                    <div>
+                        <a href="">Invite players</a>
+                    </div>
+                </div>
+                <div class="bossCurrentAttack">
+                    <div class="currentBoostsTitles">
+                        Attack:
+                    </div>
+                    <div class="attackBoxGreen">
+                        10
+                    </div>
+                    <div class="attackBoxYellow">
+                        20
+                    </div>
+                    <div class="attackBoxRed">
+                        30
+                    </div>
+                </div>
+                <div class="bossCurrentTime">
+                    <div class="currentBoostsTitles">
+                        Time: <span class="redText">-10:55:32</span>
+                    </div>
+                </div>
+                <div class="bossCurrentItems">
+                    <a href="">Possible Items</a>
+                </div>
+            </div>
+            <img src="/data/bosses/2.png" width="675" alt="" />
+        </div>
+        <div class="bossCurrentHealthBar">
+            <div class="combatantHealth" style="width:{{combatant.health_percent}}%"></div>
+            <div class="combatantHealthText"><strong>Health</strong> - {{boss.health}}/{{boss.health}}</div>
+        </div>
+        <div class="bossCombatSection">
+            <h2 class="page">Combat:</h2>
+            <div class="bossCombatInfo">
+
+            </div>
+        </div>
+        <div class="bossSquadBoostSection">
+            <h2 class="page">Squad Boosts:</h2>
+            <div class="bossSquadBoostInfo">
+                <div class="squadMemberBox">
+                    <div class="squadMemberName">
+                        PlayerName
+                    </div>
+                    <div class="squadMemberLevel">
+                        Level: 1
+                    </div>
+
+                    <img src="{{SITE_URL}}/@@/playerImage.jpg" width="80" alt="">
+
+                    <div class="squadMemberInfo">
+                        <img src="{{SITE_URL}}/@@/combat_medic.png" width="80" alt="" class="squadMemberIcon">
+                        <div class="addSquadMember">
+                            <a href="">add to fight</a>
+                        </div>
+                    </div>
+                </div>	
+                <div class="squadMemberBox">
+                    <div class="squadMemberName">
+                        PlayerName
+                    </div>
+                    <div class="squadMemberLevel">
+                        Level: 1
+                    </div>
+
+                    <img src="{{SITE_URL}}/@@/playerImage.jpg" width="80" alt="">
+
+                    <div class="squadMemberInfo">
+                        <img src="{{SITE_URL}}/@@/combat_medic.png" width="80" alt="" class="squadMemberIcon">
+                        <div class="squadMemberBonus">
+                            +4% Luck<br>
+                            4x Healing
+                        </div>
+                        <h2 class="redTimer">00:00:00</h2>
+                        <a href="" style="color: #952828;">cancel</a>
+
+                    </div>
+                </div>
+                <div class="squadMemberBlank">
+                    <div class="squadBlankText">
+                        <h2 class="brownFont">Add A Friend</h2>
+                        <img src="{{SITE_URL}}/@@/addBtnLight.png" style="margin-left:26px;" alt="">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="bossCollectBox section" id="section5">
+        <div style="margin:13px 0px 0px 10px;">	
+            <h2 class="bossTitle">Collect From Bosses</h2>
+        </div>
+        {% for boss in bosses %}
+        <div class="bossActiveSlot">
+            <div class="bossActiveImageSlot">
+                <img src="/data/bosses/{{boss.id}}.png" width="400" alt="" />
+            </div>
+            <div class="bossInfoBox">
+                <p class="bossInfo">RandomPlayer's</p>
+                <h2 class="bossTitle">{{boss.name}}</h2>
+                <p class="bossInfo">Time: <span class="redText">-10:55:32</span></p>
+                <p class="bossInfo">33/500<span style="float:right;"><a href="">more info</a></span></p>
+            </div>
+            <div class="bossActiveSlotBar">
+                <div class="bossStats">
+                    <div style="width:70px;float:left;">
+                        <h2 class="bossTitle">Your Stats:</h2>
+                    </div>
+                    <div class="statSpeed">
+                        Speed: <span class="redText">21:01:01</span>
+                    </div>
+                    <div class="statDamage">
+                        Damage: <span class="redText">100,000,000,000</span> / <span class="redText">21%</span>
+                    </div>
+                </div>
+                <div>
+                    <div class="bossLevel">
+                        {% for i in combatant.skulls%}
+                        <img class="skull" src="{{SITE_URL}}/@@/goldSkull.png" height="28" width="28" alt="">
+                        {%endfor%}
+                    </div>
+                    <img class="bossInfoBtn" src="{{SITE_URL}}/@@/icoInfo.png" width="18" alt="">
+                </div>
+
+                <form action="" method="post">
+                    <div>
+                        <input type="hidden" name="id" value="{{boss.id}}" />
+                        <input type="submit" class="bossButton" value="Locate" />
+                    </div>
+                </form>
+            </div>
+            <div class="clear"></div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

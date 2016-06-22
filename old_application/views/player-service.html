@@ -1,0 +1,22 @@
+{# Copyright (C) 2012 Down Range Games, Inc #}
+{# 1084 Paloma Rd., Monterey, CA 93940 #}
+{% extends "base.html" %}
+{% block content %}
+{% for service in services %}
+<h2>{{service.name}}</h2>
+<img src="{{MEDIA_URL}}/services/{{service.id}}.png" alt="" style="float:left;margin:0 10px 10px 0;"/>
+<p>{{service.description}}</p>
+
+
+<form action="{{SITE_URL}}/service/enlist" method="post">
+    {% csrf_token %}
+    <div>
+        <input type="hidden" name="grade" value="0" />
+        <input type="hidden" name="id" value="{{service.id}}" />
+        <input type="submit" class="button" value="Enlist" />
+    </div>
+</form>
+
+<div class="clear"></div>
+{% endfor %}
+{% endblock %}

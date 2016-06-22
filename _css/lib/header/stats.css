@@ -1,0 +1,263 @@
+/*
+    sq10 | CI:B0106 | 2/2
+
+    Rework the header bar style to new layout.
+*/
+
+#stats {
+    position: absolute;
+    top: 40px;
+    width: 760px;
+    height: 104px;
+}
+
+#stats > table{
+    width: 100%;
+}
+
+#stats > table tr td {
+    padding: 7px;
+    vertical-align: middle;
+}
+
+#stats .td-container{
+    width: 100%;
+    height: 100%;
+    position: relative;
+    top: 0;
+    left: 0;
+}
+
+#stats .stat-icon-float {
+    float: left;
+    background-repeat: no-repeat;
+    width: 28px;
+    height: 32px;
+}
+
+#stats .stat-icon-absolute {
+    position: absolute;
+    width: 28px;
+    height: 32px;
+    top: 0;
+}
+
+#stats .stat-info-container{
+    position: relative;
+    width: 165px;
+    margin-top: 4px;
+    margin-left: 18px;
+    height: 25px;
+}
+
+#stats .si-coins {
+    background-image: url('/_images/statContainerCoins.png');
+}
+
+#stats .si-challenge-coins {
+    background-image: url('/_images/statContainerChalCoins.png');
+}
+
+#stats .si-rank {
+    background-image: url('/_images/statContainerRank.png');
+}
+
+#stats .si-health {
+    background-image: url('/_images/statContainerHealth.png');
+}
+
+#stats .si-level {
+    background-image: url('/_images/statContainerLevel.png');
+}
+
+#stats .si-energy {
+    background-image: url('/_images/statContainerEnergy.png');
+}
+
+#stats .si-stamina {
+    background-image: url('/_images/statContainerStamina.png');
+}
+
+#stats .stat-container {
+    height: 25px;
+    width: 165px;
+    margin-left: 15px;
+    margin-right: 10px;
+    color: #EADEC4;
+    font-size: 1em;
+}
+
+#stats .sc-coins {
+    width: 135px;
+}
+
+#stats .sc-challenge-coins {
+    width: 90px;
+}
+
+#stats .sc-rank {
+    width: 90px;
+}
+
+#stats .stat-format {
+    height: 100%;
+    line-height: 25px;
+    padding-right: 10px;
+    text-align: right;
+}
+
+#stats .stat-count{
+    font: 18px Arial;
+    line-height: 25px;
+}
+
+#stats .add-button{
+    float: right;
+    padding-top: 8px;
+    position: relative;
+    left: 8px;
+    cursor: pointer;
+}
+
+#stats .add-button img{
+    width: 18px;
+    height: 18px;
+}
+
+#stats .stat-bar-container{
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background-image: url("/_images/bars/neutral.png");
+}
+
+#stats .with-border{
+    background-color: #7C6B57;
+    border: 4px solid #A79780;
+    border-radius: 4px;
+}
+
+#stats .stat-bar-meter{
+    float: left;
+    margin-top: 1px;
+    margin-left: 2px;
+    width: 0;
+    height: 25px;
+    background-repeat: repeat-x;
+    transition: width 0.3s;
+    -moz-transition: width 0.3s;
+    -webkit-transition: width 0.3s;
+    -o-transition: width 0.3s;
+    -ms-transition: width 0.3s;
+}
+
+#stats .stat-bar-end {
+    height: 25px;
+    width: 0;
+    float: left;
+}
+
+#stats .sbm-stamina {
+    background-image: url("/_images/bars/green.png");
+}
+
+#stats .sbm-level {
+    background-image: url("/_images/bars/blue.png");
+}
+
+#stats .sbm-energy {
+    background-image: url("/_images/bars/yellow.png");
+}
+
+#stats .sbm-health {
+    background-image: url("/_images/bars/red.png");
+}
+
+#stats .stat-box {
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    z-index: 10;
+    line-height: 25px;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    padding-right: 6px;
+    height: 25px;
+    text-align: right;
+    color: #eadec4;
+}
+
+#stats .stat-format-title {
+    position: absolute;
+}
+
+#stats .add-button-boosts {
+    float: left;
+    margin: 4px 0px 0px 10px;
+    position: relative;
+    cursor: pointer;
+    width: 18px;
+    height: 18px;
+}
+
+#stats .stat-boosts ul {
+    list-style: none;
+    margin-left: 4px;
+}
+
+#stats .stat-boosts ul li {
+    background: url('/_images/boostContainer.png') no-repeat;
+    float: left;
+    width: 26px;
+    height: 26px;
+    margin-left: 4px;
+}
+
+#stats .stat-timer {
+    margin-top: 7px;
+    margin-right: 5px;
+    float: right;
+    color: yellow;
+    display: none;
+}
+
+/*
+    sq10 | CI:B0109 | 1/2
+
+    Stats.js -> Add timer CSS styling.
+*/
+
+#stats .stat-box > div{
+    display: inline-block;
+    overflow: hidden;
+    height: 100%;
+    transition: width 0.3s, opacity 0.3s;
+    -moz-transition: width 0.3s, opacity 0.3s;
+    -webkit-transition: width 0.3s, opacity 0.3s;
+    -o-transition: width 0.3s, opacity 0.3s;
+    -ms-transition: width 0.3s, opacity 0.3s;
+    float: right;
+}
+
+#stats .stat-box .stat-number-container{
+    width: 100%;
+    opacity: 1;
+}
+
+#stats .stat-box .stat-timer-container{
+    width: 0%;
+    opacity: 0;
+    text-align: right;
+    line-height: 25px;
+}
+
+#stats .stat-info-container.show-timer .stat-number-container{
+    width: 0%;
+    opacity: 0;
+}
+
+#stats .stat-info-container.show-timer .stat-timer-container{
+    width: 100%;
+    opacity: 1;
+}

@@ -1,0 +1,58 @@
+{# Copyright (C) 2012 Down Range Games, Inc #}
+{# 1084 Paloma Rd., Monterey, CA 93940 #}
+{% extends "base.html" %}
+{% block content %}
+<div class="box">
+    <h2 class="page">Players</h2>
+    <table class="list">
+        <tr>
+            <th></th>
+            <th>Service</th>
+            <th>Rank</th>
+            <th>Speciality</th>
+            <th>Speciality</th>
+            <th></th>
+        </tr>
+        {% for player in players %}
+        <tr>
+            <td>
+                {% if player.account.facebook_id %}
+                <img src="{{MEDIA_URL}}/accounts/{{player.account.id}}.jpg" alt="" />
+                {% endif %}
+            </td>
+            <td>
+                <img src="{{MEDIA_URL}}/services/{{player.rank.service.id}}t.png" alt="" />
+            </td>
+            <td>
+                <img src="{{MEDIA_URL}}/ranks/{{player.rank.id}}t.png" alt="" />
+            </td>
+            <td>
+                <img src="{{MEDIA_URL}}/specialities/{{player.speciality.id}}t.png" alt="" />
+            </td>
+            <td>
+                {{player.rank.service.label}}
+                <a href="{{SITE_URL}}/players/{{player.id}}">{{player.rank.label}}&nbsp;{{player.first_name}}&nbsp;{{player.last_name}}</a>
+                {% if player.account.is_staff %}<br />[staff]{% endif %}
+            </td>
+            <td>
+                {% if player != request.player %}
+                {% if not player.is_friend%}
+                <form action="{{SITE_URL}}/add-friend" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="id" value="{{player.id}}" />
+                    <input type="submit" class="button" value="Add to my team" />
+                </form>
+                {% else %}
+                <form action="{{SITE_URL}}/remove-friend" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="id" value="{{player.id}}" />
+                    <input type="submit" class="button" value="Remove from my team" />
+                </form>
+                {% endif %}
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+{% endblock %}

@@ -1,0 +1,76 @@
+{# Copyright (C) 2012 Down Range Games, Inc #}
+{# 1084 Paloma Rd., Monterey, CA 93940 #}
+{% extends "base.html" %}
+{% block content %}
+
+{% for mission in missions %}
+{% if mission.progress = 100 and not mission.completed %}
+<div class="box">
+    <h2>Mission Completed</h2>
+    <p>Congratulations, you completed {{mission.mission.name}}.</p>
+    <form action="{{SITE_URL}}/comfirm-mission-completion" method="post">
+        <div>
+            <input type="hidden" name="id" value="{{mission.id}}" />
+            <input class="button blue" type="submit" value="OK" />
+        </div>
+    </form>
+</div>
+{% endif %}
+{% endfor %}
+
+<div class="box">
+    {% for mission in missions %}
+    {% if not mission.completed %}
+    <div style="background-color:white;padding:10px;margin-bottom:10px;">
+        {% else %}
+        <div style="background-color:#ccc;padding:10px;margin-bottom:10px;">
+            {% endif %}
+            <img src="{{MEDIA_URL}}/missions/{{mission.mission.id}}s.png" alt="" style="float:right;margin: 0 0 10px 10px;"/>
+            <h1>{{mission.mission.name}}</h1>
+            <p style="height:4em;">{{mission.mission.description}}</p>
+            <!--		{% if not mission.started %}
+                                    <form action="{{SITE_URL}}/accept-mission" method="post">
+                                            {% csrf_token %}
+                                            <div>
+                                                    <input type="hidden" name="id" value="{{mission.id}}" />
+                                                    <input type="submit" class="button" value="Accept" />
+                                            </div>
+                                    </form>
+                            {% else %}
+                                    <form action="{{SITE_URL}}/quit-mission" method="post">
+                                            {% csrf_token %}
+                                            <div>
+                                                    <input type="hidden" name="id" value="{{mission.id}}" />
+                                                    <input type="submit" class="button" value="Quit" />
+                                            </div>
+                                    </form>
+                            {% endif %}-->
+            <div class="progress-box">{{mission.progress}}%</div>
+            <div>
+                {% if mission.required_items %}
+                Items: {{mission.found_items}}/{{mission.required_items}}
+                {% endif %}
+                {% if mission.required_things %}
+                Things: {{mission.found_things}}/{{mission.required_things}}
+                {% endif %}
+                {% if mission.required_combatants %}
+                Combatants: {{mission.found_combatants}}/{{mission.required_combatants}}
+                {% endif %}
+                {% if mission.required_events %}
+                Events: {{mission.found_events}}/{{mission.required_events}}
+                {% endif %}
+                {% if mission.mission.credit_reward or mission.mission.experience_reward %}
+                Rewards:
+                {% if mission.mission.credit_reward %}
+                {{mission.mission.credit_reward}} coins
+                {% endif %}
+                {% if mission.mission.experience_reward %}
+                {{mission.mission.experience_reward}} experience
+                {% endif %}
+                {% endif %}
+            </div>
+            <div class="clear"></div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endblock %}

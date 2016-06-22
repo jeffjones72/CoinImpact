@@ -1,0 +1,52 @@
+{# Copyright (C) 2012 Down Range Games, Inc #}
+{# 1084 Paloma Rd., Monterey, CA 93940 #}
+{% extends "base.html" %}
+{% block content %}
+
+<div id="sell">
+    <img class="item" src="{{MEDIA_URL}}/items/{{item.id}}{% if item.has_quality %}-1{% endif %}.png" alt="{{item.name}}">
+    <h2>{{item.name}}</h2>
+    <p>{{item.description}}</p>
+    <table class="list">
+        <tr>
+            {% if item.attack %}<th>Atk</th>{% endif %}
+            {% if item.defense %}<th>Def</th>{% endif %}
+            {% if item.energy %}<th>En</th>{% endif %}
+            {% if item.stamina %}<th>Sta</th>{% endif %}
+            {% if item.health %}<th>HP</th>{% endif %}
+            {% if item.strike %}<th>CS</th>{% endif %}	
+            {% if item.dodge %}<th>Dodge</th>{% endif %}
+            {% if item.luck %}<th>Luck</th>{% endif %}
+        </tr>
+        <tr>
+            {% if item.attack %}<td>{{item.attack}}</td>{% endif %}
+            {% if item.defense %}<td>{{item.defense}}</td>{% endif %}
+            {% if item.energy %}<td>{{item.energy}}</td>{% endif %}
+            {% if item.stamina %}<td>{{item.stamina}}</td>{% endif %}
+            {% if item.health %}<td>{{item.health}}</td>{% endif %}
+            {% if item.strike %}<td>{{item.strike}}</td>{% endif %}
+            {% if item.dodge %}<td>{{item.dodge}}</td>{% endif %}
+            {% if item.luck %}<td>{{item.luck}}</td>{% endif %}
+            {% if item.luck %}<td>{{item.capacity}}</td>{% endif %}
+        </tr>
+    </table>
+    <div class="cost">
+        {% if item.price %}<img src="{{SITE_URL}}/@@/statContainerCoins.png" height='30' width='26' alt='challenge coin'>{% endif %}
+        {% if item.premium_price %}<img src="{{SITE_URL}}/@@/statContainerChalCoins.png" height='30' width='26' alt='challenge coin'>{% endif %}
+        <p>
+            {% if item.price %}{{item.price}}{% endif %}
+            {% if item.premium_price %}{{item.premium_price}}{% endif %}
+        </p>
+    </div>
+    <div class="clear"></div>
+    {% if item.buyable %}
+    <form action="{{SITE_URL}}/purchase-item" method="post">
+        {% csrf_token %}
+        <div>
+            <input type="hidden" name="id" value="{{item.id}}" />
+            <input type="submit" class="button blue" value="Purchase" />
+        </div>
+    </form>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,20 @@
+{# Copyright (C) 2012 Down Range Games, Inc #}
+{# 1084 Paloma Rd., Monterey, CA 93940 #}
+{% extends "base.html" %}
+{% block content %}
+<h1>Accounts ({{accounts.count}})</h1>
+<table class="info">
+    <tr>
+        <th>Email</th>
+        <th>Created</th>
+        <th>Last Login</th>
+    </tr>
+    {% for account in accounts %}
+    <tr>
+        <td>{{account.email}}</td>
+        <td>{{account.date_joined}}</td>
+        <td>{{account.last_login}}</td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}

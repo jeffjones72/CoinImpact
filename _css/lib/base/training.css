@@ -1,0 +1,141 @@
+/*
+    Handles the styles for the training dialog on /base.
+*/
+#training{
+    background-color: #F1ECE5;
+    border: 5px solid #758A0E;
+    width: 710px;
+    margin-top: 40px;
+}
+
+#training > table {
+    table-layout: fixed;
+    width: 100%;
+}
+
+#training > table .tableCell {
+    width: 50%;
+    position: relative;
+}
+
+#training .trainingBackground {
+    max-width: 100%;
+    overflow: hidden;
+    position: relative;
+    padding: 5px;
+}
+
+#training .bg {
+    max-width: 100%;
+}
+
+#training .attack {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+    padding: 3px;
+    text-align: center;
+    color: rgb(124, 108, 92);
+    font-size: 17px;
+    background-color: white;
+}
+
+#training .attack .txt {
+    padding: 0 10px;
+    float: left;
+    line-height: 25px;
+}
+
+#training .attack .attackBtn {
+    font-weight: bold;
+    height: 100%;
+    min-width: 40px;
+    float: right;
+    line-height: 25px;
+    margin-left: 5px;
+    color: rgb(229, 207, 193);
+    cursor: pointer;
+}
+
+#training .attack .attackBtn:hover{
+    background-color: #61700C;
+}
+
+#training .attack .attackBtn:active{
+    background-color: #434F01;
+}
+
+#training .attack .redBtn {
+    background-color: rgb(153, 43, 42);
+}
+
+#training .attack .yellowBtn {
+    background-color: rgb(185, 123, 4);
+}
+
+#training .attack .greenBtn {
+    background-color: rgb(74, 88, 3);
+}
+
+#training .trainHead{
+    height: 50px;
+}
+
+#training .trainLogCell{
+    vertical-align: top;
+    padding: 5px;
+    overflow: hidden;
+}
+
+#training .trainHead{
+    font-family: 'BebasNeueRegular';
+    font-size: 25px;
+    color: #947F64;
+    height: 30px;
+    line-height: 30px;
+    text-align: center;
+    border-bottom: 1px #947F64 solid;
+}
+
+#training .trainLog{
+    overflow: auto;
+    overflow-x: hidden;
+    height: 225px;
+}
+
+#training .trainLog .log{
+    border-bottom: 1px #B4A796 dotted;
+    height: 25px;
+    line-height: 25px;
+    color: #473725;
+    transition: background-color 0.4s linear;
+    -moz-transition: background-color 0.4s linear;
+    -webkit-transition: background-color 0.4s linear;
+    -o-transition: background-color 0.4s linear;
+    -ms-transition: background-color 0.4s linear;
+    background-color: #EAD3B2;
+}
+
+#training .trainLog .log.shown{
+    background-color: #F1ECE5;
+}
+
+#training .trainLog .log.error{
+    color: red;
+    font-weight: bold;
+}
+
+#training .dmgHover{
+    position: absolute;
+    font-size: 30px;
+    line-height: 30px;
+    font-weight: bold;
+    color: #A32F2F;
+    text-align: center;
+}

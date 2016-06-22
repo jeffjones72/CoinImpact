@@ -1,0 +1,34 @@
+{# Copyright (C) 2012 Down Range Games, Inc #}
+{# 1084 Paloma Rd., Monterey, CA 93940 #}
+{% extends "base.html" %}
+{% block content %}
+<h1>{{player.first_name}} {{player.last_name}}</h1>
+
+<img src="{{MEDIA_URL}}/accounts/{{player.account.id}}.jpg" alt="" />
+<img src="{{MEDIA_URL}}/services/{{player.rank.service.id}}s.png" alt="" />
+<img src="{{MEDIA_URL}}/ranks/{{player.rank.id}}s.png" alt="" />
+<img src="{{MEDIA_URL}}/specialities/{{player.speciality.id}}s.png" alt="" /></td>
+
+{% if items %}
+<h2>Items</h2>
+{% for item in items %}
+<div style="float:left;width:100px;">
+    <img src="{{MEDIA_URL}}/items/{{item.item.id}}{% if item.item.has_quality %}-{{item.quality}}{% endif %}s.png" alt="" />
+    {{item.item.name}}<br />
+</div>
+{% endfor %}
+<div class="clear"></div>
+{% endif %}
+
+{% if places %}
+<h2>Places</h2>
+{% for place in places %}
+<div style="float:left;width:100px;">
+    <img src="{{MEDIA_URL}}/places/{{place.place.id}}t.png" alt="" />
+    {{place.place.name}} {{place.progress}}%<br />
+</div>
+{% endfor %}
+{% endif %}
+
+
+{% endblock %}

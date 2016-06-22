@@ -1,0 +1,47 @@
+{# Copyright (C) 2012 Down Range Games, Inc #}
+{# 1084 Paloma Rd., Monterey, CA 93940 #}
+{% extends "base.html" %}
+{% block content %}
+<div class="box">
+    <div style="margin-top: 50px">
+        <h2 class="page">{{request.player.first_name}} {{request.player.last_name}}</h2>
+        <table class="list">
+            <tr>
+                <th>Created</th>
+                <td>{{request.player.created}}</td>
+                <td></td>
+            </tr>
+            <tr>
+                <th>Service</th>
+                <td>
+                    <strong>{{request.player.rank.service.name}}</strong><br />
+                    <p>{{request.player.rank.service.description}}</p>
+                    <a href="{{SITE_URL}}/player/service">change</a>
+                </td>
+                <td><img src="{{MEDIA_URL}}/services/{{request.player.rank.service.id}}t.png" alt="" /></td>
+            </tr>
+            <tr>
+                <th>Rank</th>
+                <td>
+                    <strong>{{request.player.rank.name}}</strong>
+                    <p>{{request.player.rank.description}}</p>
+                    <a href="{{SITE_URL}}/service/promote">promote</a>
+                </td>
+
+                <td><img src="{{MEDIA_URL}}/ranks/{{request.player.rank.id}}t.png" alt="" /></td>
+            </tr>
+
+            <tr>
+                <th>Speciality</th>
+                <td>
+                    <strong>{{request.player.speciality.name}}</strong>
+                    <p>{{request.player.speciality.description}}</p>
+                    <a href="{{SITE_URL}}/player/speciality">change</a>
+                </td>
+                <td><img src="{{MEDIA_URL}}/specialities/{{request.player.speciality.id}}t.png" alt="" /></td>
+            </tr>
+
+        </table>
+    </div>
+</div>
+{% endblock %}
