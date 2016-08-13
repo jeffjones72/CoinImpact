@@ -51,7 +51,7 @@ class Player extends CI_Model
         $query = $this->db->get();
         $row = $query->row_array();
 
-
+        $this->base->boost = 0;
         $this->initBase();
 
 
