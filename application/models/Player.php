@@ -51,12 +51,12 @@ class Player extends CI_Model
         $query = $this->db->get();
         $row = $query->row_array();
 
-        $this->initBase();
 
         $this->place_id = $row['place_id'];
         $this->convertRefillToUT();
         $this->queryPlace();
         if ($this->isAtBase()) {
+            $this->initBase();
             $this->refill_coeff = 1 - $this->base->boost;
         } else {
             $this->refill_coeff = 1;
