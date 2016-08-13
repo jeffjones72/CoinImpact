@@ -52,11 +52,13 @@ class Player extends CI_Model
         $row = $query->row_array();
 
 
+        $this->initBase();
+
+
         $this->place_id = $row['place_id'];
         $this->convertRefillToUT();
         $this->queryPlace();
         if ($this->isAtBase()) {
-            $this->initBase();
             $this->refill_coeff = 1 - $this->base->boost;
         } else {
             $this->refill_coeff = 1;
@@ -72,6 +74,7 @@ class Player extends CI_Model
 
     /**
      * initBase sets information for player base
+     * 
      */
     public function initBase(){
         $this->db->select('bl.id as level, bl.boost, bl.description, bl.image, bb.boost_amount, pb.boost_expires');
@@ -82,16 +85,19 @@ class Player extends CI_Model
         $this->db->where('pb.player_id', $this->id);
         $base = $this->db->get();
 
-        $this->base = $base->result()[0];
+        if($base->num_rows() == 1){
 
-        $this->db->select('bl.id,boost,stamina_cost,energy_cost,required_player_level,item_quantity,item_id,thing_quantity,thing_id,npc_id,boss_id,
-    exploration_area_id,exploration_percentage,trust_area_id,trust_level');
-        $this->db->from('base_levels bl');
-        $this->db->join('base_requirements br', 'bl.id = br.base_level_id', 'left outer');
-        $this->db->where('bl.id', $this->base->level + 1);
-        $nextBase = $this->db->get();
+            $this->base = $base->result()[0];
 
-        $this->nextBase = $nextBase->result();
+            $this->db->select('bl.id,boost,stamina_cost,energy_cost,required_player_level,item_quantity,item_id,thing_quantity,thing_id,npc_id,boss_id,
+        exploration_area_id,exploration_percentage,trust_area_id,trust_level');
+            $this->db->from('base_levels bl');
+            $this->db->join('base_requirements br', 'bl.id = br.base_level_id', 'left outer');
+            $this->db->where('bl.id', $this->base->level + 1);
+            $nextBase = $this->db->get();
+
+            $this->nextBase = $nextBase->result();
+        }
     }
 
     public function getExploration()
