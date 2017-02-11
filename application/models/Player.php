@@ -77,7 +77,7 @@ class Player extends CI_Model
      * 
      */
     public function initBase(){
-        echo '<script>console.info("initBase");</script>';
+        //'echo '<script>console.info("initBase");</script>';
         $this->db->select('bl.id as level, bl.boost, bl.description, bl.image, bb.boost_amount, pb.boost_expires');
         $this->db->from('player_base pb');
         $this->db->join('base_levels bl', 'pb.base_level_id = bl.id');
