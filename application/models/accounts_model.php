@@ -92,6 +92,12 @@ class Accounts_model extends CI_Model {
 
         $player_id = $this->db->insert_id();
 
+        //Insert initial base level of 1
+        $data_base['player_id'] = $player_id;
+        $data_base['base_level_id'] = 1;
+
+        $this->db->insert('player_base', $data_base);
+
         $this->db->select('id');
         $this->db->where('release_id', 1);
         $this->db->order_by('id');
