@@ -86,19 +86,16 @@ class Player extends CI_Model
         $this->db->where('pb.player_id', $this->id);
         $base = $this->db->get();
 
-        if($base->num_rows() == 1){
 
-            $this->base = $base->result()[0];
+        $this->base = $base->result()[0];
 
-            $this->db->select('bl.id,boost,stamina_cost,energy_cost,required_player_level,item_quantity,item_id,thing_quantity,thing_id,npc_id,boss_id,
-        exploration_area_id,exploration_percentage,trust_area_id,trust_level');
-            $this->db->from('base_levels bl');
-            $this->db->join('base_requirements br', 'bl.id = br.base_level_id', 'left outer');
-            $this->db->where('bl.id', $this->base->level + 1);
-            $nextBase = $this->db->get();
+        $this->db->select('bl.id,boost,stamina_cost,energy_cost,required_player_level,item_quantity,item_id,thing_quantity,thing_id,npc_id,boss_id, exploration_area_id,exploration_percentage,trust_area_id,trust_level');
+        $this->db->from('base_levels bl');
+        $this->db->join('base_requirements br', 'bl.id = br.base_level_id', 'left outer');
+        $this->db->where('bl.id', $this->base->level + 1);
+        $nextBase = $this->db->get();
 
-            $this->nextBase = $nextBase->result();
-        }
+        $this->nextBase = $nextBase->result();
     }
 
     public function getExploration()
